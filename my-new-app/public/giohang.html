@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Giỏ hàng - Jollibee Clone</title>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #fff7f7;
+      }
+
+      /* CONTAINER */
+      .cart-container {
+        max-width: 1000px;
+        background: white;
+        margin: 30px auto;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+      }
+
+      h2 {
+        color: #b30015;
+        margin-bottom: 15px;
+        font-size: 26px;
+      }
+
+      /* TABLE */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th {
+        background: #ffe2e4;
+        padding: 12px;
+        font-size: 16px;
+      }
+
+      td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        text-align: center;
+      }
+
+      img {
+        width: 70px;
+        height: 70px;
+        border-radius: 10px;
+        object-fit: cover;
+      }
+
+      /* QUANTITY BUTTONS */
+      .qty-btn {
+        padding: 5px 10px;
+        background: #d6001c;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 15px;
+      }
+      .qty-number {
+        margin: 0 10px;
+        font-weight: bold;
+      }
+
+      /* REMOVE */
+      .remove-btn {
+        background: #ddd;
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .remove-btn:hover {
+        background: #bbb;
+      }
+
+      /* TOTAL */
+      .total-box {
+        margin-top: 20px;
+        text-align: right;
+        font-size: 22px;
+        font-weight: bold;
+        color: #d6001c;
+      }
+
+      .checkout-btn {
+        margin-top: 20px;
+        background: #d6001c;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 10px;
+        font-size: 18px;
+        cursor: pointer;
+        float: right;
+      }
+
+      /* TOAST */
+      .toast {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #ffd400;
+        color: #000;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-size: 14px;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+        z-index: 9999;
+        pointer-events: none;
+      }
+      .toast.show {
+        opacity: 1;
+      }
+
+      @media (max-width: 600px) {
+        td img {
+          width: 50px;
+          height: 50px;
+        }
+        .qty-btn {
+          padding: 4px 8px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <style>
+        /* HEADER */
+        header {
+          background: #d6001c;
+          padding: 15px 40px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          color: white;
+        }
+        header .logo {
+          font-size: 28px;
+          font-weight: bold;
+        }
+        header nav a {
+          color: white;
+          margin-left: 25px;
+          text-decoration: none;
+          font-size: 18px;
+        }
+      </style>
+
+      <div class="logo">Jollibee Clone</div>
+      <nav>
+        <a href="index.html">Trang chủ</a>
+        <a href="thucdon.html">Thực đơn</a>
+        <a href="theodoi.html">Theo dõi đơn hàng</a>
+        <a href="giohang.html" style="color: yellow">Giỏ hàng</a>
+
+        <span id="user-area" style="margin-left: 20px"></span>
+      </nav>
+    </header>
+
+    <div class="cart-container">
+      <h2>Sản phẩm của bạn</h2>
+
+      <table id="cart-table">
+        <thead>
+          <tr>
+            <th>Hình</th>
+            <th>Tên món</th>
+            <th>Giá</th>
+            <th>Số lượng</th>
+            <th>Tổng</th>
+            <th>Xóa</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div class="total-box" id="total-price">Tổng: 0₫</div>
+      <div style="margin-top: 10px">
+        <label><b>Chọn hình thức thanh toán:</b></label>
+        <select
+          id="payment-method"
+          style="padding: 6px 12px; border-radius: 6px; margin-left: 10px"
+        >
+          <option value="momo">Momo</option>
+          <option value="nganhang">Ngân hàng</option>
+          <option value="shipcode">Ship code</option>
+        </select>
+        <script>
+          document
+            .getElementById("payment-method")
+            .addEventListener("change", async function () {
+              const method = this.value;
+
+              // Lấy tổng tiền hiện tại từ giỏ
+              const user = JSON.parse(localStorage.getItem("user"));
+              if (!user) return;
+
+              const res = await fetch(
+                `http://localhost:5000/api/giohang/user/${user.maNguoiDung}`
+              );
+              const data = await res.json();
+
+              const total = (data.chiTiet || []).reduce(
+                (sum, i) => sum + (i.Gia || i.GiaCombo) * i.SoLuong,
+                0
+              );
+
+              if (method === "momo" || method === "nganhang") {
+                hienQRThanhToan(total);
+              } else {
+                document.getElementById("payment-box").innerHTML = `
+          <h3>Thanh toán khi nhận hàng (COD)</h3>
+        `;
+              }
+            });
+        </script>
+      </div>
+      <button class="checkout-btn">Đặt hàng</button>
+      <div id="payment-box" style="margin-top: 25px; text-align: center"></div>
+    </div>
+
+    <div class="toast" id="toast">Thêm vào giỏ hàng thành công!</div>
+
+    <script>
+      function loadUser() {
+        const userArea = document.getElementById("user-area");
+        const user = localStorage.getItem("user");
+
+        if (!user) {
+          userArea.innerHTML = `<a href="login.html" style="color:yellow;">Đăng nhập</a>`;
+          return;
+        }
+
+        const u = JSON.parse(user);
+        userArea.innerHTML = `
+          Xin chào, <b>${u.hoTen || u.username}</b> |
+          <a href="#" onclick="logout()" style="color:yellow;">Đăng xuất</a>
+        `;
+      }
+      function logout() {
+        localStorage.removeItem("user");
+        loadUser();
+      }
+      loadUser();
+
+      async function loadOrders() {
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) {
+          document.querySelector("#orders-table tbody").innerHTML =
+            '<tr><td colspan="6">Bạn chưa đăng nhập</td></tr>';
+          return;
+        }
+        const MaUser = user.maNguoiDung;
+        try {
+          const res = await fetch(`http://localhost:5000/api/donhang`);
+          if (!res.ok) throw new Error("Không thể lấy đơn hàng");
+          const allOrders = await res.json();
+          const orders = allOrders.filter((o) => o.MaUser === MaUser);
+          const tbody = document.querySelector("#orders-table tbody");
+          tbody.innerHTML = "";
+          if (orders.length === 0) {
+            tbody.innerHTML =
+              '<tr><td colspan="6">Bạn chưa có đơn hàng nào</td></tr>';
+          } else {
+            orders.forEach((order) => {
+              tbody.innerHTML += `
+                      <tr>
+                        <td>${order.MaDonHang}</td>
+                        <td>${
+                          order.NgayDat
+                            ? new Date(order.NgayDat).toLocaleString()
+                            : ""
+                        }</td>
+                        <td>${Number(order.TongTien).toLocaleString()}₫</td>
+                        <td>${order.HinhThucThanhToan || ""}</td>
+                        <td class="status ${
+                          order.TrangThai
+                        }">${order.TrangThai.replace("_", " ")}</td>
+                        <td><button onclick="reorder('${
+                          order.MaDonHang
+                        }')">Đặt lại</button></td>
+                      </tr>
+                    `;
+            });
+          }
+        } catch (error) {
+          document.querySelector("#orders-table tbody").innerHTML =
+            '<tr><td colspan="6">Lỗi tải đơn hàng</td></tr>';
+        }
+      }
+
+      async function reorder(maDonHang) {
+        if (!confirm("Bạn muốn đặt lại đơn hàng này?")) return;
+        try {
+          // Lấy chi tiết đơn hàng
+          const res = await fetch(
+            `http://localhost:5000/api/donhangchitiet/donhang/${maDonHang}`
+          );
+          if (!res.ok) throw new Error("Không thể lấy chi tiết đơn hàng");
+          const items = await res.json();
+          // Lấy hoặc tạo giỏ hàng hiện tại
+          const user = JSON.parse(localStorage.getItem("user"));
+          const MaUser = user.maNguoiDung;
+          const MaGioHang = await getOrCreateCart(MaUser);
+          // Thêm từng sản phẩm vào giỏ hàng
+          for (let item of items) {
+            let payload = {
+              MaGioHang,
+              LoaiSanPham: item.LoaiSanPham,
+              SoLuong: item.SoLuong,
+            };
+            if (item.LoaiSanPham === "combo") {
+              payload.MaCombo = item.MaCombo;
+            } else {
+              payload.MaSanPham = item.MaSanPham;
+            }
+            await fetch("http://localhost:5000/api/giohang/add", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+          }
+          showToast("Đã thêm lại sản phẩm vào giỏ hàng!");
+          loadCart();
+          // Đảm bảo getOrCreateCart khả dụng toàn cục
+          window.getOrCreateCart = async function (maUser) {
+            let res = await fetch(
+              `http://localhost:5000/api/giohang/user/${maUser}`
+            );
+            if (res.status === 404) {
+              // Chưa có giỏ hàng -> tạo mới
+              const resCreate = await fetch(
+                `http://localhost:5000/api/giohang/user/${maUser}`,
+                {
+                  method: "POST",
+                }
+              );
+              if (!resCreate.ok) throw new Error("Không thể tạo giỏ hàng");
+              const dataCreate = await resCreate.json();
+              // Trả về id giỏ hàng mới tạo
+              return dataCreate.giohang.MaGioHang;
+            }
+            if (!res.ok) throw new Error("Lỗi lấy giỏ hàng");
+            const data = await res.json();
+            return data.giohang.MaGioHang;
+          };
+        } catch (error) {
+          alert(error.message);
+        }
+      }
+      document
+        .querySelector(".checkout-btn")
+        .addEventListener("click", async () => {
+          const user = JSON.parse(localStorage.getItem("user"));
+          if (!user)
+            return alert("Vui lòng đăng nhập"), (location.href = "login.html");
+
+          try {
+            const res = await fetch(
+              `http://localhost:5000/api/giohang/user/${user.maNguoiDung}`
+            );
+            const data = await res.json();
+            if (!data.chiTiet || data.chiTiet.length === 0)
+              return alert("Giỏ hàng trống!");
+
+            const Items = data.chiTiet.map((item) => ({
+              LoaiSanPham: item.MaSanPham ? "sanpham" : "combo",
+              MaSanPham: item.MaSanPham || null,
+              MaCombo: item.MaCombo || null,
+              SoLuong: item.SoLuong,
+              DonGia: item.Gia || item.GiaCombo,
+              ThanhTien: (item.Gia || item.GiaCombo) * item.SoLuong,
+              ComboItems: [],
+            }));
+
+            const tongTien = Items.reduce((sum, i) => sum + i.ThanhTien, 0);
+
+            const orderRes = await fetch(
+              "http://localhost:5000/api/order/create",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  MaUser: user.maNguoiDung,
+                  TongTien: tongTien,
+                  HinhThucThanhToan:
+                    document.getElementById("payment-method").value,
+                  Items,
+                }),
+              }
+            );
+
+            const result = await orderRes.json();
+            if (!orderRes.ok) throw new Error(result.error || "Lỗi tạo đơn");
+
+            // Xóa giỏ
+            await fetch(
+              `http://localhost:5000/api/giohang/user/${user.maNguoiDung}`,
+              { method: "DELETE" }
+            );
+
+            showToast(`Đặt hàng thành công! Mã đơn #${result.MaDonHang}`);
+            loadCart();
+            loadOrders();
+          } catch (err) {
+            alert("Lỗi: " + err.message);
+          }
+        });
+
+      async function loadCart() {
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) {
+          document.querySelector("#cart-table tbody").innerHTML =
+            '<tr><td colspan="6">Bạn chưa đăng nhập</td></tr>';
+          document.getElementById("total-price").innerText = "Tổng: 0₫";
+          return;
+        }
+        const MaUser = user.maNguoiDung;
+        try {
+          const res = await fetch(
+            `http://localhost:5000/api/giohang/user/${MaUser}`
+          );
+          if (!res.ok) throw new Error("Không thể lấy giỏ hàng");
+          const data = await res.json();
+          const list = data.chiTiet || [];
+          const tbody = document.querySelector("#cart-table tbody");
+          tbody.innerHTML = "";
+          let total = 0;
+          if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6">Giỏ hàng trống</td></tr>';
+          } else {
+            list.forEach((item) => {
+              let ten = item.TenSanPham || item.TenCombo || "";
+              let gia = item.Gia || item.GiaCombo || 0;
+              let hinh = item.HinhAnh || "no-image.png";
+              let thanhTien = gia * item.SoLuong;
+              total += thanhTien;
+              tbody.innerHTML += `
+                      <tr>
+                        <td><img src="images/${hinh}" /></td>
+                        <td>${ten}</td>
+                        <td>${Number(gia).toLocaleString()}₫</td>
+                        <td>
+                          <button class="qty-btn" onclick="changeQty('${
+                            item.MaChiTiet
+                          }', -1)">-</button>
+                          <span class="qty-number">${item.SoLuong}</span>
+                          <button class="qty-btn" onclick="changeQty('${
+                            item.MaChiTiet
+                          }', 1)">+</button>
+                        </td>
+                        <td>${Number(thanhTien).toLocaleString()}₫</td>
+                        <td><button class="remove-btn" onclick="removeItem('${
+                          item.MaChiTiet
+                        }')">Xóa</button></td>
+                      </tr>
+                    `;
+            });
+          }
+          document.getElementById("total-price").innerText = `Tổng: ${Number(
+            total
+          ).toLocaleString()}₫`;
+        } catch (error) {
+          document.querySelector("#cart-table tbody").innerHTML =
+            '<tr><td colspan="6">Lỗi tải giỏ hàng</td></tr>';
+          document.getElementById("total-price").innerText = "Tổng: 0₫";
+        }
+      }
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        toast.textContent = msg;
+        toast.classList.add("show");
+
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, 1500);
+      }
+
+      async function addToCart(sp) {
+        try {
+          const user = JSON.parse(localStorage.getItem("user"));
+          if (!user) {
+            alert("Bạn cần đăng nhập để thêm vào giỏ hàng");
+            window.location.href = "login.html";
+            return;
+          }
+
+          const MaUser = user.maNguoiDung;
+          const MaGioHang = await getOrCreateCart(MaUser);
+
+          // Xác định LoaiSanPham, MaSanPham hoặc MaCombo
+          let payload = {
+            MaGioHang,
+            LoaiSanPham: sp.id.startsWith("C") ? "combo" : "sanpham", // giả sử combo có id bắt đầu 'C'
+            SoLuong: 1,
+          };
+          if (payload.LoaiSanPham === "combo") {
+            payload.MaCombo = sp.id;
+          } else {
+            payload.MaSanPham = sp.id;
+          }
+
+          const res = await fetch("http://localhost:5000/api/giohang/add", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || "Lỗi thêm sản phẩm vào giỏ hàng");
+          }
+
+          showToast("Thêm vào giỏ hàng thành công!");
+
+          // Cập nhật số lượng giỏ hàng hiển thị
+          updateCartCount();
+        } catch (error) {
+          alert(error.message);
+        }
+      }
+
+      async function changeQty(maChiTiet, change) {
+        try {
+          // Lấy số lượng hiện tại trong bảng
+          const span = [...document.querySelectorAll(".qty-btn")].find((btn) =>
+            btn.onclick.toString().includes(maChiTiet)
+          );
+          // Không chắc lấy số lượng trực tiếp từ DOM dễ, nên gọi lại loadCart sau update
+
+          // Lấy số lượng hiện tại (không hoàn toàn chính xác, nên có thể cải tiến)
+          // Thay vì lấy DOM, bạn có thể giữ số lượng trong biến global hoặc load lại.
+
+          // Cách đơn giản: gửi PUT request với số lượng mới
+
+          // Đầu tiên cần lấy số lượng hiện tại trong giỏ hàng:
+          const user = JSON.parse(localStorage.getItem("user"));
+          const MaUser = user.maNguoiDung;
+
+          // Lấy chi tiết món trong giỏ hàng
+          const resCart = await fetch(
+            `http://localhost:5000/api/giohang/user/${MaUser}`
+          );
+          const dataCart = await resCart.json();
+          const item = dataCart.chiTiet.find((i) => i.MaChiTiet === maChiTiet);
+          if (!item) throw new Error("Không tìm thấy món trong giỏ hàng");
+
+          let newSoLuong = item.SoLuong + change;
+          if (newSoLuong < 1) newSoLuong = 1;
+
+          const res = await fetch(
+            `http://localhost:5000/api/giohang/item/${maChiTiet}`,
+            {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ SoLuong: newSoLuong }),
+            }
+          );
+          if (!res.ok) throw new Error("Cập nhật số lượng thất bại");
+
+          await loadCart();
+        } catch (error) {
+          alert(error.message);
+        }
+      }
+
+      async function removeItem(maChiTiet) {
+        try {
+          const res = await fetch(
+            `http://localhost:5000/api/giohang/item/${maChiTiet}`,
+            {
+              method: "DELETE",
+            }
+          );
+          if (!res.ok) throw new Error("Xóa sản phẩm thất bại");
+
+          showToast("Đã xóa sản phẩm khỏi giỏ hàng!");
+          await loadCart();
+        } catch (error) {
+          alert(error.message);
+        }
+      }
+
+      loadCart();
+
+      function hienQRThanhToan(tongTien) {
+        const method = document.getElementById("payment-method").value;
+
+        const maThanhToan = taoMaThanhToan();
+        const noiDung = `DH_${maThanhToan}`;
+
+        window.__maThanhToan = maThanhToan;
+
+        let qrUrl = "";
+        let html = "";
+
+        if (method === "nganhang") {
+          const bankCode = "mbbank";
+          const accountNumber = "0123456789";
+          const accountName = "NGUYEN VAN A";
+
+          qrUrl = `https://img.vietqr.io/image/${bankCode}-${accountNumber}-print.png?amount=${tongTien}&addInfo=${encodeURIComponent(
+            noiDung
+          )}&accountName=${encodeURIComponent(accountName)}`;
+
+          html = `
+      <h3>Quét mã để chuyển khoản ngân hàng</h3>
+      <img src="${qrUrl}" />
+      <p><b>Ngân hàng:</b> MB Bank</p>
+      <p><b>Số tài khoản:</b> ${accountNumber}</p>
+      <p><b>Tên chủ TK:</b> ${accountName}</p>
+      <p><b>Số tiền:</b> <span style="color:red">${Number(
+        tongTien
+      ).toLocaleString()}₫</span></p>
+      <p><b>Nội dung:</b> ${noiDung}</p>
+      <small style="color:#999">(Không thể thay đổi số tiền & nội dung)</small>
+    `;
+        }
+
+        if (method === "momo") {
+          const momoPhone = "0909123456";
+
+          const momoData = `MOMO|${momoPhone}|${tongTien}|${noiDung}`;
+          qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+            momoData
+          )}`;
+
+          html = `
+      <h3>Quét mã để thanh toán MoMo</h3>
+      <img src="${qrUrl}" />
+      <p><b>SĐT MoMo:</b> ${momoPhone}</p>
+      <p><b>Số tiền:</b> <span style="color:red">${Number(
+        tongTien
+      ).toLocaleString()}₫</span></p>
+      <p><b>Nội dung:</b> ${noiDung}</p>
+      <small style="color:#999">(Không thể thay đổi số tiền & nội dung)</small>
+    `;
+        }
+
+        if (method === "shipcode") {
+          html = `
+      <h3>Thanh toán khi nhận hàng (COD)</h3>
+      <p>Bạn sẽ thanh toán trực tiếp cho shipper.</p>
+      <p><b>Số tiền:</b> ${Number(tongTien).toLocaleString()}₫</p>
+    `;
+        }
+
+        document.getElementById("payment-box").innerHTML = html;
+      }
+    </script>
+  </body>
+</html>

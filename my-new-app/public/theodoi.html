@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Theo dõi đơn hàng - Jollibee Clone</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #fff7f7;
+        margin: 0;
+      }
+      header {
+        background: #d6001c;
+        padding: 15px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+      }
+      header .logo {
+        font-size: 28px;
+        font-weight: bold;
+      }
+      header nav a {
+        color: white;
+        margin-left: 25px;
+        text-decoration: none;
+        font-size: 18px;
+        transition: 0.2s;
+      }
+      header nav a:hover {
+        color: #ffe600;
+      }
+      .container {
+        max-width: 1000px;
+        background: white;
+        margin: 30px auto;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+      }
+      h2 {
+        color: #b30015;
+        margin-bottom: 15px;
+        font-size: 26px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        text-align: center;
+      }
+      th {
+        background: #ffe2e4;
+        font-size: 16px;
+      }
+      .status {
+        font-weight: bold;
+      }
+      .status.cho_duyet {
+        color: #d6001c;
+      }
+      .status.dang_giao {
+        color: #ff9900;
+      }
+      .status.hoan_thanh {
+        color: #009900;
+      }
+      .status.huy {
+        color: #888;
+      }
+      button {
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        background: #d6001c;
+        color: white;
+        font-size: 14px;
+        margin: 2px;
+      }
+
+      button:hover {
+        background: #b80018;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">Jollibee Clone</div>
+      <nav>
+        <a href="index.html">Trang chủ</a>
+        <a href="thucdon.html">Thực đơn</a>
+        <a href="giohang.html">Giỏ hàng</a>
+        <a href="theodoi.html" style="color: yellow">Theo dõi đơn</a>
+      </nav>
+    </header>
+
+    <div class="container">
+      <h2>Đơn hàng của bạn</h2>
+      <div style="margin-bottom: 20px">
+        <label><b>Lọc theo trạng thái:</b></label>
+        <select
+          id="order-status-filter"
+          style="padding: 6px 12px; border-radius: 6px; margin-left: 10px"
+        >
+          <option value="all">Tất cả</option>
+          <option value="cho_duyet">Chờ duyệt</option>
+          <option value="dang_giao">Đang giao</option>
+          <option value="hoan_thanh">Hoàn thành</option>
+          <option value="huy">Hủy</option>
+        </select>
+      </div>
+      <table id="orders-table">
+        <thead>
+          <tr>
+            <th>Mã đơn</th>
+            <th>Ngày đặt</th>
+            <th>Tổng tiền</th>
+            <th>Hình thức</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="order-detail-view" style="margin-top: 30px"></div>
+    </div>
+    <script>
+      async function loadOrders() {
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) {
+          document.querySelector("#orders-table tbody").innerHTML =
+            '<tr><td colspan="5">Bạn chưa đăng nhập</td></tr>';
+          return;
+        }
+        const MaUser = user.maNguoiDung;
+        try {
+          const res = await fetch(`http://localhost:5000/api/donhang`);
+          if (!res.ok) throw new Error("Không thể lấy đơn hàng");
+          const allOrders = await res.json();
+          let orders = allOrders.filter((o) => o.MaUser === MaUser);
+          // Lọc theo trạng thái
+          const status = document.getElementById("order-status-filter").value;
+          if (status !== "all") {
+            orders = orders.filter((o) => o.TrangThai === status);
+          }
+          const tbody = document.querySelector("#orders-table tbody");
+          tbody.innerHTML = "";
+          if (orders.length === 0) {
+            tbody.innerHTML =
+              '<tr><td colspan="6">Bạn chưa có đơn hàng nào</td></tr>';
+          } else {
+            orders.forEach((order) => {
+              tbody.innerHTML += `
+              <tr>
+                <td>${order.MaDonHang}</td>
+                <td>${
+                  order.NgayDat ? new Date(order.NgayDat).toLocaleString() : ""
+                }</td>
+                <td>${Number(order.TongTien).toLocaleString()}₫</td>
+                <td>${order.HinhThucThanhToan || ""}</td>
+                <td class="status ${order.TrangThai}">
+  ${
+    order.TrangThai === "cho_duyet"
+      ? "Chờ duyệt"
+      : order.TrangThai === "dang_giao"
+      ? "Đang giao"
+      : order.TrangThai === "hoan_thanh"
+      ? "Hoàn thành"
+      : "Đã hủy"
+  }
+</td>
+
+                <td>
+                  <button onclick="window.viewOrderDetail('${
+                    order.MaDonHang
+                  }')">Xem lại đơn hàng</button>
+                  ${
+                    order.TrangThai === "cho_duyet"
+                      ? `<button onclick=\"cancelOrder('${order.MaDonHang}')\">Hủy</button>`
+                      : ""
+                  }
+                </td>
+              </tr>
+            `;
+            });
+          }
+        } catch (error) {
+          document.querySelector("#orders-table tbody").innerHTML =
+            '<tr><td colspan="5">Lỗi tải đơn hàng</td></tr>';
+        }
+      }
+
+      // Gán sự kiện bộ lọc trạng thái chỉ một lần khi trang load
+      document
+        .getElementById("order-status-filter")
+        .addEventListener("change", loadOrders);
+      loadOrders();
+
+      // Đưa các hàm ra phạm vi global
+      window.viewOrderDetail = async function (maDonHang) {
+        const detailDiv = document.getElementById("order-detail-view");
+        detailDiv.innerHTML = "<b>Đang tải chi tiết đơn hàng...</b>";
+        try {
+          const res = await fetch(
+            `http://localhost:5000/api/donhangchitiet/donhang/${maDonHang}`
+          );
+          if (!res.ok) {
+            console.error("API lỗi:", res.status, await res.text());
+            throw new Error("Không thể lấy chi tiết đơn hàng");
+          }
+          const items = await res.json();
+          console.log("Chi tiết đơn hàng:", items);
+          if (!items || !items.length) {
+            detailDiv.innerHTML =
+              '<b style="color:red;">Đơn hàng không có sản phẩm nào hoặc dữ liệu trả về rỗng.</b>';
+            return;
+          }
+          let html = `<h3>Chi tiết đơn hàng ${maDonHang}</h3><table style="width:100%;border-collapse:collapse;margin-top:10px;">`;
+          html += `<tr><th>Loại</th><th>Tên</th><th>Giá</th><th>Số lượng</th><th>Thành tiền</th></tr>`;
+          items.forEach((item) => {
+            let ten = item.TenSanPham || item.TenCombo || "";
+            let gia = item.DonGia || 0;
+            let thanhTien = item.ThanhTien || gia * item.SoLuong;
+            html += `<tr>
+              <td>${item.LoaiSanPham}</td>
+              <td>${ten}</td>
+              <td>${Number(gia).toLocaleString()}₫</td>
+              <td>${item.SoLuong}</td>
+              <td>${Number(thanhTien).toLocaleString()}₫</td>
+            </tr>`;
+          });
+          html += `</table>`;
+          detailDiv.innerHTML = html;
+        } catch (error) {
+          detailDiv.innerHTML = `<b style='color:red;'>${error.message}</b>`;
+          console.error("Lỗi lấy chi tiết đơn hàng:", error);
+        }
+      };
+
+      window.cancelOrder = async function (maDonHang) {
+        if (!confirm("Bạn chắc chắn muốn hủy đơn hàng này?")) return;
+        try {
+          // Lấy lại đơn hàng để lấy thông tin cần thiết
+          const resGet = await fetch(
+            `http://localhost:5000/api/donhang/${maDonHang}`
+          );
+          if (!resGet.ok) throw new Error("Không tìm thấy đơn hàng");
+          const order = await resGet.json();
+          // Gửi yêu cầu cập nhật trạng thái
+          const res = await fetch(
+            `http://localhost:5000/api/donhang/${maDonHang}`,
+            {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                MaUser: order.MaUser,
+                TongTien: order.TongTien,
+                TrangThai: "huy",
+              }),
+            }
+          );
+          if (!res.ok) throw new Error("Hủy đơn hàng thất bại");
+          alert("Đã hủy đơn hàng!");
+          loadOrders();
+        } catch (error) {
+          alert(error.message);
+        }
+      };
+    </script>
+  </body>
+</html>

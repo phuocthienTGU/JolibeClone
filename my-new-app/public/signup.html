@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Đăng ký</title>
+    <style>
+      body {
+        font-family: Arial;
+        background: #fff3f3;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+
+      .signup-box {
+        width: 420px;
+        background: #fff;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      }
+
+      h2 {
+        text-align: center;
+        color: #d60000;
+        margin-bottom: 20px;
+        font-size: 26px;
+      }
+
+      input,
+      select {
+        width: 95%;
+        padding: 12px;
+        margin: 8px 0;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+
+      button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 15px;
+        background: #ff0000;
+        border: none;
+        color: #fff;
+        font-size: 18px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #cc0000;
+      }
+
+      a {
+        text-decoration: none;
+        color: #d60000;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="signup-box">
+      <h2>Đăng ký tài khoản</h2>
+
+      <form id="signupForm">
+        <!-- các input như hiện tại -->
+        <input
+          type="text"
+          id="taiKhoan"
+          name="taiKhoan"
+          placeholder="Tài khoản"
+          required
+        />
+        <input
+          type="password"
+          id="matKhau"
+          name="matKhau"
+          placeholder="Mật khẩu"
+          required
+        />
+        <input
+          type="text"
+          id="hoTen"
+          name="hoTen"
+          placeholder="Họ tên"
+          required
+        />
+        <input type="email" id="email" name="email" placeholder="Email" />
+        <input
+          type="text"
+          id="dienThoai"
+          name="dienThoai"
+          placeholder="Điện thoại"
+        />
+        <input type="text" id="diaChi" name="diaChi" placeholder="Địa chỉ" />
+        <select id="vaiTro" name="vaiTro">
+          <option value="khachhang">Khách hàng</option>
+          <option value="nhanvien">Nhân viên</option>
+          <option value="admin">Admin</option>
+        </select>
+        <button type="submit">Đăng ký</button>
+      </form>
+
+      <p style="text-align: center">
+        Đã có tài khoản? <a href="login.html">Đăng nhập</a>
+      </p>
+    </div>
+  </body>
+  <script>
+    const form = document.getElementById("signupForm");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault(); // chặn submit form mặc định
+
+      const data = {
+        TaiKhoan: form.taiKhoan.value,
+        MatKhau: form.matKhau.value,
+        HoTen: form.hoTen.value,
+        Email: form.email.value,
+        DienThoai: form.dienThoai.value,
+        DiaChi: form.diaChi.value,
+        VaiTro: form.vaiTro.value,
+      };
+
+      try {
+        const res = await fetch("http://localhost:5000/auth/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          alert(result.message || "Đăng ký thành công!");
+
+          window.location.href = "login.html";
+          form.reset();
+        } else {
+          alert(result.message || "Lỗi khi đăng ký!");
+        }
+      } catch (error) {
+        alert("Lỗi mạng hoặc server!");
+        console.error(error);
+      }
+    });
+  </script>
+</html>
