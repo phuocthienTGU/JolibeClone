@@ -2,23 +2,18 @@
 node_modules/
 */node_modules/
 
-# Environment variables
+# Environment files
 .env
 *.env
 
-# Logs
-logs
+# Logs và rác
 *.log
 npm-debug.log*
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
 
 # Build folders
 build/
 dist/
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Editor folders
-.idea/
-.vscode/
