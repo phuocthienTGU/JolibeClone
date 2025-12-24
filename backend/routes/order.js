@@ -9,7 +9,13 @@ const router = express.Router();
 router.post("/create", async (req, res) => {
   console.log("📦 Received order:", req.body);
 
-  const { MaUser, TongTien, Items, HinhThucThanhToan } = req.body;
+  const {
+    MaUser,
+    TongTien,
+    Items,
+    HinhThucThanhToan,
+    MaGiamGia = null, // Thêm dòng này, mặc định null nếu không có
+  } = req.body;
 
   if (!MaUser || !TongTien || !Items || Items.length === 0) {
     return res.status(400).json({ error: "Thiếu dữ liệu tạo đơn hàng" });
@@ -25,9 +31,9 @@ router.post("/create", async (req, res) => {
     // 1. Insert đơn hàng (MaDonHang do trigger tự tạo)
     await conn.query(
       `INSERT INTO DonHang 
-   (MaUser, TongTien, HinhThucThanhToan, TrangThai, NgayDat)
-   VALUES (?, ?, ?, 'cho_duyet', NOW())`,
-      [MaUser, TongTien, HinhThucThanhToan]
+   (MaUser, TongTien, HinhThucThanhToan, TrangThai, NgayDat, MaGiamGia)
+   VALUES (?, ?, ?, 'cho_duyet', NOW(), ?)`,
+      [MaUser, TongTien, HinhThucThanhToan, MaGiamGia]
     );
 
     // 2. Lấy MaDonHang vừa được trigger tạo

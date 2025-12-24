@@ -90,7 +90,7 @@
       const form = document.getElementById("loginForm");
 
       form.addEventListener("submit", async (e) => {
-        e.preventDefault(); // chặn submit mặc định
+        e.preventDefault();
 
         const data = {
           TaiKhoan: form.taiKhoan.value,
@@ -118,9 +118,14 @@
             localStorage.setItem(
               "user",
               JSON.stringify({
+                MaUser: result.user.MaUser,
                 hoTen: result.user.HoTen,
                 vaiTro: result.user.VaiTro,
+                Email: result.user.Email || "",
+                DienThoai: result.user.DienThoai || "",
                 maNguoiDung: result.user.MaUser,
+                DiaChi: result.user.DiaChi,
+                MaXa: result.user.MaXa || null, // ← Sửa lỗi, dùng result.user
               })
             );
 
@@ -136,8 +141,8 @@
             alert(result.message || "Đăng nhập thất bại!");
           }
         } catch (error) {
-          alert("Lỗi mạng hoặc server!");
-          console.error(error);
+          console.error("Lỗi đăng nhập:", error);
+          alert("Lỗi kết nối! Vui lòng kiểm tra server.");
         }
       });
     </script>

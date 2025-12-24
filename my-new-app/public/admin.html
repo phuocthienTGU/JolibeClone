@@ -1,952 +1,104 @@
 <!DOCTYPE html>
 <html lang="vi">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Admin - Jollibee</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Jollibee</title>
     <style>
-      :root {
-        --red: #d6001c;
-        --accent: #ff6600;
-        --muted: #f7f7f7;
-      }
-      * {
-        box-sizing: border-box;
-      }
       body {
         margin: 0;
-        font-family: Inter, Arial, Helvetica, sans-serif;
-        background: var(--muted);
-        color: #222;
+        font-family: Arial, sans-serif;
+        background: #f0f0f0;
       }
       header {
-        background: var(--red);
-        color: #fff;
-        padding: 14px 20px;
-        font-size: 20px;
-        font-weight: 700;
+        background: #d6001c;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        font-size: 28px;
+        font-weight: bold;
       }
-      .layout {
-        display: flex;
-        min-height: calc(100vh - 56px);
-      }
-      /* sidebar */
-      .sidebar {
-        width: 240px;
-        background: #fff;
-        padding: 18px;
-        border-right: 1px solid #eee;
-      }
-      .brand {
-        font-weight: 800;
-        color: var(--red);
-        margin-bottom: 14px;
-      }
-      .nav-item {
-        padding: 10px 12px;
-        border-radius: 8px;
-        margin-bottom: 8px;
-        cursor: pointer;
-      }
-      .nav-item:hover {
-        background: #feeceb;
-      }
-      .nav-item.active {
-        background: #ffdede;
-        font-weight: 700;
-      }
-      /* content */
-      .content {
-        flex: 1;
-        padding: 18px;
-      }
-      .controls {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        margin-bottom: 14px;
-        flex-wrap: wrap;
-      }
-      .btn {
-        background: var(--accent);
-        color: #fff;
-        padding: 8px 12px;
-        border-radius: 8px;
-        border: none;
-        cursor: pointer;
-      }
-      .btn.secondary {
-        background: #fff;
-        color: var(--accent);
-        border: 1px solid #ffd6c2;
-      }
-      .search {
-        padding: 8px;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        width: 240px;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        background: #fff;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-      }
-      thead th {
-        background: #fff5f4;
-        padding: 12px;
-        border-bottom: 1px solid #eee;
-        text-align: left;
-      }
-      td,
-      th {
-        padding: 12px;
-        border-bottom: 1px solid #f1f1f1;
-      }
-      img.thumb {
-        width: 60px;
-        border-radius: 6px;
-      }
-      .small {
-        font-size: 13px;
-        color: #666;
-      }
-      /* modal */
-      .modal-backdrop {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.4);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 200;
-      }
-      .modal {
-        width: 720px;
-        background: #fff;
+      .container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 20px;
+        background: white;
         border-radius: 10px;
-        padding: 18px;
-        max-height: 90vh;
-        overflow: auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
-      .form-row {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 10px;
+      .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
       }
-      .form-row .col {
-        flex: 1;
+      .menu-item {
+        background: #fff;
+        border: 2px solid #d6001c;
+        border-radius: 8px;
+        padding: 30px;
+        text-align: center;
+        transition: 0.3s;
       }
-      input,
-      select,
-      textarea {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
+      .menu-item:hover {
+        background: #d6001c;
+        color: white;
+        transform: scale(1.05);
       }
-      label {
-        font-weight: 600;
-        font-size: 13px;
-        margin-bottom: 6px;
-        display: block;
-      }
-      .actions {
-        text-align: right;
-        margin-top: 12px;
-      }
-      .muted {
-        color: #777;
-        font-size: 13px;
+      .menu-item a {
+        color: inherit;
+        text-decoration: none;
+        font-size: 20px;
+        font-weight: bold;
       }
       footer {
-        padding: 14px;
         text-align: center;
-        color: #fff;
-        background: var(--red);
-        margin-top: 16px;
-      }
-      @media (max-width: 900px) {
-        .sidebar {
-          display: none;
-        }
-        .modal {
-          width: 95%;
-        }
+        padding: 20px;
+        background: #d6001c;
+        color: white;
+        margin-top: 50px;
       }
     </style>
   </head>
   <body>
-    <header>Jollibee - Admin Dashboard</header>
+    <header>QUẢN TRỊ JOLLIBEE</header>
 
-    <div class="layout">
-      <aside class="sidebar">
-        <div class="brand">Jollibee Admin</div>
-        <div class="nav-item active" data-module="sanpham">
-          Quản lý sản phẩm
+    <div class="container">
+      <h2 style="text-align: center; color: #d6001c">Chào mừng Admin</h2>
+      <div class="menu-grid">
+        <div class="menu-item">
+          <a href="admin-sanpham.html">Quản lý Sản phẩm</a>
         </div>
-        <div class="nav-item" data-module="danhmuc">Quản lý danh mục</div>
-        <div class="nav-item" data-module="combo">Quản lý combo</div>
-        <div class="nav-item" data-module="user">Quản lý người dùng</div>
-        <div class="nav-item" data-module="donhang">Quản lý đơn hàng</div>
-        <div class="nav-item" data-module="giohang">Quản lý giỏ hàng</div>
-        <hr
-          style="margin: 12px 0; border: none; border-top: 1px solid #f0f0f0"
-        />
-        <div class="small muted">
-          API base: <b id="api-base-display">http://localhost:5000/api</b>
+        <div class="menu-item">
+          <a href="admin-combo.html">Quản lý Combo</a>
         </div>
-      </aside>
-
-      <main class="content">
-        <div
-          style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-          "
-        >
-          <div>
-            <h2 id="page-title">Quản lý sản phẩm</h2>
-            <div class="small muted" id="page-sub">
-              Xem / Thêm / Sửa / Xóa sản phẩm
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 8px; align-items: center">
-            <input id="search" class="search" placeholder="Tìm kiếm..." />
-            <button class="btn" id="add-btn">+ Thêm mới</button>
-            <button class="btn secondary" id="refresh-btn">⟳ Làm mới</button>
-          </div>
+        <div class="menu-item">
+          <a href="admin-danhmuc.html">Quản lý Danh mục</a>
         </div>
-
-        <div style="margin-top: 12px">
-          <table id="data-table">
-            <thead id="table-head"></thead>
-            <tbody id="table-body"></tbody>
-          </table>
+        <div class="menu-item">
+          <a href="admin-donhang.html">Quản lý Đơn hàng</a>
         </div>
-
-        <footer>© 2025 Jollibee - Admin</footer>
-      </main>
-    </div>
-
-    <!-- MODAL -->
-    <div class="modal-backdrop" id="modal-backdrop">
-      <div class="modal" role="dialog">
-        <h3 id="modal-title">Form</h3>
-
-        <div id="modal-form">
-          <!-- dynamic form fields injected here -->
+        <div class="menu-item">
+          <a href="admin-users.html">Quản lý Người dùng</a>
         </div>
-
-        <div class="actions">
-          <button class="btn secondary" onclick="closeModal()">Hủy</button>
-          <button class="btn" id="modal-save-btn">Lưu</button>
+        <div class="menu-item">
+          <a href="admin-khuyenmai.html">Quản lý Khuyến mãi</a>
         </div>
+        <div class="menu-item">
+          <a href="admin-chat.html">Quản lý Chat Hỗ trợ</a>
+        </div>
+        <div class="menu-item"><a href="index.html">← Về trang chủ</a></div>
       </div>
     </div>
+
+    <footer>© 2025 Jollibee Admin Panel</footer>
 
     <script>
-      /*
-  Admin static page integrated with typical REST APIs:
-  - edit API_BASE if your API runs on other host/port
-  - expects JSON responses for GET list endpoints
-  - supports: sanpham, danhmuc, combo, user, donhang, giohang
-*/
-
-      const API_BASE = "http://localhost:5000/api"; // <--- chỉnh nếu cần
-      document.getElementById("api-base-display").innerText = API_BASE;
-
-      let currentModule = "sanpham";
-      let currentList = [];
-      let editingId = null; // id đang sửa
-
-      // --- UI init
-      document.querySelectorAll(".nav-item").forEach((el) => {
-        el.addEventListener("click", () => {
-          document
-            .querySelectorAll(".nav-item")
-            .forEach((x) => x.classList.remove("active"));
-          el.classList.add("active");
-          currentModule = el.dataset.module;
-          loadModule(currentModule);
-        });
-      });
-
-      document
-        .getElementById("add-btn")
-        .addEventListener("click", () => openAddForm());
-      document
-        .getElementById("refresh-btn")
-        .addEventListener("click", () => loadModule(currentModule));
-      document.getElementById("search").addEventListener("input", (e) => {
-        const q = e.target.value.trim().toLowerCase();
-        if (!q) renderTable(currentList);
-        else
-          renderTable(
-            currentList.filter((item) =>
-              JSON.stringify(item).toLowerCase().includes(q)
-            )
-          );
-      });
-
-      // modal helpers
-      function openModal(title, html, onSave) {
-        editingOnSave = onSave;
-        document.getElementById("modal-title").innerText = title;
-        document.getElementById("modal-form").innerHTML = html;
-        document.getElementById("modal-backdrop").style.display = "flex";
-        document.getElementById("modal-save-btn").onclick = async () => {
-          await editingOnSave();
-        };
+      // Kiểm tra quyền admin
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (!user || user.vaiTro !== "admin") {
+        alert("Bạn không có quyền truy cập trang Admin!");
+        window.location.href = "login.html";
       }
-      function closeModal() {
-        document.getElementById("modal-backdrop").style.display = "none";
-        editingId = null;
-      }
-
-      // --- module loaders
-      async function loadModule(name) {
-        document.getElementById("page-title").innerText =
-          {
-            sanpham: "Quản lý sản phẩm",
-            danhmuc: "Quản lý danh mục",
-            combo: "Quản lý combo",
-            user: "Quản lý người dùng",
-            donhang: "Quản lý đơn hàng",
-            giohang: "Quản lý giỏ hàng",
-          }[name] || name;
-
-        document.getElementById("page-sub").innerText = "Đang tải...";
-        currentList = [];
-        renderTable([]);
-
-        try {
-          let url;
-          switch (name) {
-            case "sanpham":
-              url = `${API_BASE}/sanpham`;
-              break;
-            case "danhmuc":
-              url = `${API_BASE}/danhmuc`;
-              break;
-            case "combo":
-              url = `${API_BASE}/combo`;
-              break;
-            case "user":
-              url = `${API_BASE}/user`;
-              break;
-            case "donhang":
-              url = `${API_BASE}/donhang`;
-              break;
-            case "giohang":
-              url = `${API_BASE}/giohang`;
-              break;
-            default:
-              url = `${API_BASE}/${name}`;
-          }
-          const res = await fetch(url);
-          if (!res.ok) throw new Error("Lỗi tải dữ liệu");
-          const data = await res.json();
-          // nếu API trả object { data: [...] } thì sửa ở đây
-          currentList = Array.isArray(data) ? data : data.data || data;
-          document.getElementById(
-            "page-sub"
-          ).innerText = `Tổng bản ghi: ${currentList.length}`;
-          renderTable(currentList);
-        } catch (err) {
-          document.getElementById("page-sub").innerText = "Lỗi tải dữ liệu";
-          document.getElementById(
-            "table-body"
-          ).innerHTML = `<tr><td colspan="10">Không thể tải dữ liệu: ${err.message}</td></tr>`;
-          console.error(err);
-        }
-      }
-
-      // --- render table based on module
-      function renderTable(list) {
-        const head = document.getElementById("table-head");
-        const body = document.getElementById("table-body");
-        head.innerHTML = "";
-        body.innerHTML = "";
-        if (currentModule === "sanpham") {
-          head.innerHTML = `<tr><th>Mã</th><th>Tên</th><th>Danh mục</th><th>Giá</th><th>Hình</th><th>Trạng thái</th><th>Hành động</th></tr>`;
-          list.forEach((item) => {
-            body.innerHTML += `<tr>
-        <td>${item.MaSanPham || ""}</td>
-        <td>${item.TenSanPham || ""}</td>
-        <td>${item.MaDanhMuc || ""}</td>
-        <td>${Number(item.Gia || 0).toLocaleString()}₫</td>
-        <td>${
-          item.HinhAnh
-            ? `<img class="thumb" src="${API_BASE.replace("/api", "")}/images/${
-                item.HinhAnh
-              }" />`
-            : ""
-        }</td>
-        <td>${item.TrangThai || ""}</td>
-        <td>
-          <button onclick="onEdit('sanpham','${item.MaSanPham}')">Sửa</button>
-          <button onclick="onDelete('sanpham','${item.MaSanPham}')">Xóa</button>
-        </td>
-      </tr>`;
-          });
-        } else if (currentModule === "danhmuc") {
-          head.innerHTML = `<tr><th>Mã</th><th>Tên</th><th>Mô tả</th><th>Hành động</th></tr>`;
-          list.forEach((item) => {
-            body.innerHTML += `<tr>
-        <td>${item.MaDanhMuc || ""}</td>
-        <td>${item.TenDanhMuc || ""}</td>
-        <td class="small">${(item.MoTa || "").slice(0, 120)}</td>
-        <td>
-          <button onclick="onEdit('danhmuc','${item.MaDanhMuc}')">Sửa</button>
-          <button onclick="onDelete('danhmuc','${item.MaDanhMuc}')">Xóa</button>
-        </td>
-      </tr>`;
-          });
-        } else if (currentModule === "combo") {
-          head.innerHTML = `<tr><th>Mã</th><th>Tên</th><th>Giá</th><th>Hình</th><th>Trạng thái</th><th>Hành động</th></tr>`;
-          list.forEach((item) => {
-            body.innerHTML += `<tr>
-        <td>${item.MaCombo || ""}</td>
-        <td>${item.TenCombo || ""}</td>
-        <td>${Number(item.GiaCombo || 0).toLocaleString()}₫</td>
-        <td>${
-          item.HinhAnh
-            ? `<img class="thumb" src="${API_BASE.replace("/api", "")}/images/${
-                item.HinhAnh
-              }">`
-            : ""
-        }</td>
-        <td>${item.TrangThai || ""}</td>
-        <td>
-          <button onclick="onEdit('combo','${item.MaCombo}')">Sửa</button>
-          <button onclick="onDelete('combo','${item.MaCombo}')">Xóa</button>
-        </td>
-      </tr>`;
-          });
-        } else if (currentModule === "user") {
-          head.innerHTML = `<tr><th>Mã</th><th>Tài khoản</th><th>Họ tên</th><th>Email</th><th>Vai trò</th><th>Hành động</th></tr>`;
-          list.forEach((u) => {
-            body.innerHTML += `<tr>
-        <td>${u.MaUser || ""}</td>
-        <td>${u.TaiKhoan || ""}</td>
-        <td>${u.HoTen || ""}</td>
-        <td>${u.Email || ""}</td>
-        <td>${u.VaiTro || ""}</td>
-        <td>
-          <button onclick="onEdit('user','${u.MaUser}')">Sửa</button>
-          <button onclick="onDelete('user','${u.MaUser}')">Xóa</button>
-        </td>
-      </tr>`;
-          });
-        } else if (currentModule === "donhang") {
-          head.innerHTML = `<tr><th>Mã đơn</th><th>User</th><th>Tổng tiền</th><th>Trạng thái</th><th>Ngày</th><th>Hành động</th></tr>`;
-          list.forEach((d) => {
-            body.innerHTML += `<tr>
-        <td>${d.MaDonHang || ""}</td>
-        <td>${d.MaUser || ""}</td>
-        <td>${Number(d.TongTien || 0).toLocaleString()}₫</td>
-        <td>${d.TrangThai || ""}</td>
-        <td>${d.NgayDat || d.NgayTao || ""}</td>
-        <td>
-          <button onclick="viewDonHang('${d.MaDonHang}')">Xem</button>
-          <button onclick="onDelete('donhang','${d.MaDonHang}')">Xóa</button>
-        </td>
-      </tr>`;
-          });
-        } else if (currentModule === "giohang") {
-          head.innerHTML = `<tr><th>Mã giỏ</th><th>User</th><th>Ngày tạo</th><th>Trạng thái</th><th>Hành động</th></tr>`;
-          list.forEach((g) => {
-            body.innerHTML += `<tr>
-        <td>${g.MaGioHang || ""}</td>
-        <td>${g.MaUser || ""}</td>
-        <td>${g.NgayTao || ""}</td>
-        <td>${g.TrangThai || ""}</td>
-        <td>
-          <button onclick="viewGioHang('${g.MaGioHang}')">Xem</button>
-          <button onclick="onDelete('giohang','${g.MaGioHang}')">Xóa</button>
-        </td>
-      </tr>`;
-          });
-        } else {
-          head.innerHTML = `<tr><th>Data</th></tr>`;
-          list.forEach(
-            (i) =>
-              (body.innerHTML += `<tr><td><pre>${JSON.stringify(
-                i,
-                null,
-                2
-              )}</pre></td></tr>`)
-          );
-        }
-      }
-
-      // --- CRUD actions
-      async function onEdit(module, id) {
-        editingId = id;
-        if (module === "sanpham") return openSanPhamForm(id);
-        if (module === "danhmuc") return openDanhMucForm(id);
-        if (module === "combo") return openComboForm(id);
-        if (module === "user") return openUserForm(id);
-        if (module === "donhang") return viewDonHang(id);
-        if (module === "giohang") return viewGioHang(id);
-      }
-
-      async function onDelete(module, id) {
-        if (!confirm("Bạn có chắc muốn xóa?")) return;
-        try {
-          const res = await fetch(
-            `${API_BASE}/${module}/${encodeURIComponent(id)}`,
-            { method: "DELETE" }
-          );
-          if (!res.ok) throw new Error("Xóa thất bại");
-          alert("Xóa thành công");
-          loadModule(currentModule);
-        } catch (err) {
-          alert("Lỗi: " + err.message);
-        }
-      }
-
-      // --- Forms for sanpham
-      async function openSanPhamForm(id = null) {
-        // fetch danh mục để select
-        const dmRes = await fetch(`${API_BASE}/danhmuc`);
-        const danhmuc = await dmRes.json();
-        let item = {
-          MaSanPham: "",
-          MaDanhMuc: "",
-          TenSanPham: "",
-          MoTa: "",
-          Gia: "",
-          HinhAnh: "",
-          TrangThai: "hienthi",
-        };
-        if (id) {
-          const res = await fetch(`${API_BASE}/sanpham/${id}`);
-          item = await res.json();
-        }
-
-        const html = `
-    <div class="form-row">
-      <div class="col"><label>Tên sản phẩm</label><input id="f_ten" value="${escapeHtml(
-        item.TenSanPham || ""
-      )}" /></div>
-      <div class="col"><label>Giá</label><input id="f_gia" type="number" value="${
-        item.Gia || 0
-      }" /></div>
-    </div>
-    <div class="form-row">
-      <div class="col">
-        <label>Danh mục</label>
-        <select id="f_madanhmuc">
-          ${danhmuc
-            .map(
-              (d) =>
-                `<option value="${d.MaDanhMuc}" ${
-                  d.MaDanhMuc === item.MaDanhMuc ? "selected" : ""
-                }>${d.TenDanhMuc}</option>`
-            )
-            .join("")}
-        </select>
-      </div>
-      <div class="col"><label>Trạng thái</label>
-        <select id="f_trangthai">
-          <option value="hienthi" ${
-            item.TrangThai === "hienthi" ? "selected" : ""
-          }>Hiển thị</option>
-          <option value="an" ${
-            item.TrangThai === "an" ? "selected" : ""
-          }>Ẩn</option>
-        </select>
-      </div>
-    </div>
-    <div style="margin-bottom:10px">
-      <label>Mô tả</label>
-      <textarea id="f_mota" rows="4">${escapeHtml(item.MoTa || "")}</textarea>
-    </div>
-    <div style="margin-bottom:10px">
-      <label>Hình (tên file trên folder /images)</label>
-      <input id="f_hinh" value="${item.HinhAnh || ""}" />
-      <div class="muted">Nếu muốn upload hình mới, bạn cần chỉnh backend để hỗ trợ upload multipart/form-data.</div>
-    </div>
-  `;
-        openModal(id ? "Sửa sản phẩm" : "Thêm sản phẩm", html, async () => {
-          const payload = {
-            MaDanhMuc: document.getElementById("f_madanhmuc").value,
-            TenSanPham: document.getElementById("f_ten").value.trim(),
-            MoTa: document.getElementById("f_mota").value.trim(),
-            Gia: Number(document.getElementById("f_gia").value || 0),
-            HinhAnh: document.getElementById("f_hinh").value.trim(),
-            TrangThai: document.getElementById("f_trangthai").value,
-          };
-          try {
-            let res;
-            if (id) {
-              res = await fetch(
-                `${API_BASE}/sanpham/${encodeURIComponent(id)}`,
-                {
-                  method: "PUT",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(payload),
-                }
-              );
-            } else {
-              res = await fetch(`${API_BASE}/sanpham`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-              });
-            }
-            if (!res.ok) {
-              const err = await res.text();
-              throw new Error(err || "Lỗi lưu");
-            }
-            alert("Lưu thành công");
-            closeModal();
-            loadModule(currentModule);
-          } catch (err) {
-            alert("Lỗi: " + err.message);
-          }
-        });
-      }
-
-      // --- Forms for danh muc
-      async function openDanhMucForm(id = null) {
-        let item = { MaDanhMuc: "", TenDanhMuc: "", MoTa: "" };
-        if (id) {
-          const res = await fetch(`${API_BASE}/danhmuc/${id}`);
-          item = await res.json();
-        }
-        const html = `
-    <div class="form-row">
-      <div class="col"><label>Tên danh mục</label><input id="f_ten" value="${escapeHtml(
-        item.TenDanhMuc || ""
-      )}" /></div>
-    </div>
-    <div style="margin-bottom:10px">
-      <label>Mô tả</label>
-      <textarea id="f_mota" rows="4">${escapeHtml(item.MoTa || "")}</textarea>
-    </div>
-  `;
-        openModal(id ? "Sửa danh mục" : "Thêm danh mục", html, async () => {
-          const payload = {
-            TenDanhMuc: document.getElementById("f_ten").value.trim(),
-            MoTa: document.getElementById("f_mota").value.trim(),
-          };
-          try {
-            let res;
-            if (id) {
-              res = await fetch(
-                `${API_BASE}/danhmuc/${encodeURIComponent(id)}`,
-                {
-                  method: "PUT",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(payload),
-                }
-              );
-            } else {
-              res = await fetch(`${API_BASE}/danhmuc`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-              });
-            }
-            if (!res.ok) throw new Error("Lưu thất bại");
-            alert("Lưu thành công");
-            closeModal();
-            loadModule(currentModule);
-          } catch (err) {
-            alert("Lỗi: " + err.message);
-          }
-        });
-      }
-
-      // --- Forms for combo
-      async function openComboForm(id = null) {
-        let item = {
-          MaCombo: "",
-          TenCombo: "",
-          GiaCombo: "",
-          MoTa: "",
-          HinhAnh: "",
-          TrangThai: "hienthi",
-        };
-        if (id) {
-          const res = await fetch(`${API_BASE}/combo/${id}`);
-          item = await res.json();
-        }
-        const html = `
-    <div class="form-row">
-      <div class="col"><label>Tên combo</label><input id="f_ten" value="${escapeHtml(
-        item.TenCombo || ""
-      )}" /></div>
-      <div class="col"><label>Giá combo</label><input id="f_gia" type="number" value="${
-        item.GiaCombo || 0
-      }" /></div>
-    </div>
-    <div style="margin-bottom:10px">
-      <label>Mô tả</label>
-      <textarea id="f_mota" rows="4">${escapeHtml(item.MoTa || "")}</textarea>
-    </div>
-    <div style="margin-bottom:10px">
-      <label>Hình (tên file)</label>
-      <input id="f_hinh" value="${item.HinhAnh || ""}" />
-    </div>
-    <div>
-      <label>Trạng thái</label>
-      <select id="f_trangthai">
-        <option value="hienthi" ${
-          item.TrangThai === "hienthi" ? "selected" : ""
-        }>Hiển thị</option>
-        <option value="an" ${
-          item.TrangThai === "an" ? "selected" : ""
-        }>Ẩn</option>
-      </select>
-    </div>
-  `;
-        openModal(id ? "Sửa combo" : "Thêm combo", html, async () => {
-          const payload = {
-            TenCombo: document.getElementById("f_ten").value.trim(),
-            GiaCombo: Number(document.getElementById("f_gia").value || 0),
-            MoTa: document.getElementById("f_mota").value.trim(),
-            HinhAnh: document.getElementById("f_hinh").value.trim(),
-            TrangThai: document.getElementById("f_trangthai").value,
-          };
-          try {
-            let res;
-            if (id) {
-              res = await fetch(`${API_BASE}/combo/${encodeURIComponent(id)}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-              });
-            } else {
-              res = await fetch(`${API_BASE}/combo`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-              });
-            }
-            if (!res.ok) throw new Error("Lưu thất bại");
-            alert("Lưu thành công");
-            closeModal();
-            loadModule(currentModule);
-          } catch (err) {
-            alert("Lỗi: " + err.message);
-          }
-        });
-      }
-
-      // --- Forms for user
-      async function openUserForm(id = null) {
-        let item = {
-          MaUser: "",
-          TaiKhoan: "",
-          HoTen: "",
-          Email: "",
-          DienThoai: "",
-          DiaChi: "",
-          VaiTro: "khachhang",
-        };
-        if (id) {
-          const res = await fetch(`${API_BASE}/auth/${id}`);
-          item = await res.json();
-        }
-        const html = `
-    <div class="form-row">
-      <div class="col"><label>Tài khoản</label><input id="f_tk" value="${escapeHtml(
-        item.TaiKhoan || ""
-      )}" /></div>
-      <div class="col"><label>Mật khẩu</label><input id="f_mk" value="" placeholder="${
-        id ? "Để trống nếu không đổi" : ""
-      }" /></div>
-    </div>
-    <div class="form-row">
-      <div class="col"><label>Họ tên</label><input id="f_hoten" value="${escapeHtml(
-        item.HoTen || ""
-      )}" /></div>
-      <div class="col"><label>Email</label><input id="f_email" value="${escapeHtml(
-        item.Email || ""
-      )}" /></div>
-    </div>
-    <div class="form-row">
-      <div class="col"><label>Điện thoại</label><input id="f_dt" value="${escapeHtml(
-        item.DienThoai || ""
-      )}" /></div>
-      <div class="col"><label>Vai trò</label>
-        <select id="f_vaitro">
-          <option value="admin" ${
-            item.VaiTro === "admin" ? "selected" : ""
-          }>admin</option>
-          <option value="nhanvien" ${
-            item.VaiTro === "nhanvien" ? "selected" : ""
-          }>nhanvien</option>
-          <option value="khachhang" ${
-            item.VaiTro === "khachhang" ? "selected" : ""
-          }>khachhang</option>
-        </select>
-      </div>
-    </div>
-    <div style="margin-top:8px" class="muted">Lưu ý: backend cần tự hash mật khẩu hoặc bạn đã xử lý ở server.</div>
-  `;
-        openModal(id ? "Sửa người dùng" : "Thêm người dùng", html, async () => {
-          const payload = {
-            TaiKhoan: document.getElementById("f_tk").value.trim(),
-            MatKhau: document.getElementById("f_mk").value.trim(), // nếu rỗng -> backend nên ignore
-            HoTen: document.getElementById("f_hoten").value.trim(),
-            Email: document.getElementById("f_email").value.trim(),
-            DienThoai: document.getElementById("f_dt").value.trim(),
-            VaiTro: document.getElementById("f_vaitro").value,
-          };
-          try {
-            let res;
-            if (id) {
-              res = await fetch(`${API_BASE}/user/${encodeURIComponent(id)}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-              });
-            } else {
-              res = await fetch(`${API_BASE}/user`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-              });
-            }
-            if (!res.ok) {
-              const t = await res.text();
-              throw new Error(t || "Lỗi lưu");
-            }
-            alert("Lưu thành công");
-            closeModal();
-            loadModule(currentModule);
-          } catch (err) {
-            alert("Lỗi: " + err.message);
-          }
-        });
-      }
-
-      // --- view đơn hàng
-      async function viewDonHang(ma) {
-        try {
-          const res = await fetch(
-            `${API_BASE}/donhang/${encodeURIComponent(ma)}`
-          );
-          if (!res.ok) throw new Error("Không tìm thấy đơn");
-          const dh = await res.json();
-          // nếu API trả { donhang: ..., chiTiet: [...] } thì adjust
-          let html = `<div><strong>Mã:</strong> ${
-            dh.MaDonHang || dh.ma || ""
-          }</div>
-      <div><strong>User:</strong> ${dh.MaUser || ""}</div>
-      <div><strong>Tổng tiền:</strong> ${Number(
-        dh.TongTien || 0
-      ).toLocaleString()}₫</div>
-      <div><strong>Trạng thái:</strong> ${dh.TrangThai || ""}</div>
-      <hr/>`;
-          // try get chi tiết
-          try {
-            const r2 = await fetch(
-              `${API_BASE}/donhang/${encodeURIComponent(ma)}/chitiet`
-            );
-            if (r2.ok) {
-              const ct = await r2.json();
-              html += `<h4>Chi tiết</h4><ul>${(Array.isArray(ct)
-                ? ct
-                : ct.chiTiet || []
-              )
-                .map(
-                  (i) =>
-                    `<li>${i.LoaiSanPham || i.Loai || ""} - ${
-                      i.MaSanPham || i.MaCombo || ""
-                    } x ${i.SoLuong || i.SoLuong} = ${Number(
-                      i.ThanhTien || i.DonGia || 0
-                    ).toLocaleString()}₫</li>`
-                )
-                .join("")}</ul>`;
-            }
-          } catch (e) {}
-          openModal("Chi tiết đơn hàng", html, async () => closeModal());
-        } catch (err) {
-          alert("Lỗi: " + err.message);
-        }
-      }
-
-      // --- view giohang
-      async function viewGioHang(ma) {
-        try {
-          const res = await fetch(
-            `${API_BASE}/giohang/${encodeURIComponent(ma)}`
-          );
-          if (!res.ok) throw new Error("Không tìm thấy giỏ hàng");
-          const g = await res.json();
-          let html = `<div><strong>Mã giỏ:</strong> ${
-            g.MaGioHang || ""
-          }</div><div><strong>User:</strong> ${g.MaUser || ""}</div><hr/>`;
-          try {
-            const r2 = await fetch(
-              `${API_BASE}/giohang/${encodeURIComponent(ma)}/chitiet`
-            );
-            if (r2.ok) {
-              const ct = await r2.json();
-              html += `<h4>Chi tiết</h4><ul>${(Array.isArray(ct)
-                ? ct
-                : ct.chiTiet || []
-              )
-                .map(
-                  (i) =>
-                    `<li>${i.LoaiSanPham} - ${i.MaSanPham || i.MaCombo} x ${
-                      i.SoLuong
-                    }</li>`
-                )
-                .join("")}</ul>`;
-            }
-          } catch (e) {}
-          openModal("Chi tiết giỏ hàng", html, async () => closeModal());
-        } catch (err) {
-          alert("Lỗi: " + err.message);
-        }
-      }
-
-      // helpers
-      function escapeHtml(s) {
-        if (!s) return "";
-        return String(s).replace(
-          /[&<>"']/g,
-          (c) =>
-            ({
-              "&": "&amp;",
-              "<": "&lt;",
-              ">": "&gt;",
-              '"': "&quot;",
-              "'": "&#39;",
-            }[c])
-        );
-      }
-
-      // open add generic
-      function openAddForm() {
-        if (currentModule === "sanpham") return openSanPhamForm();
-        if (currentModule === "danhmuc") return openDanhMucForm();
-        if (currentModule === "combo") return openComboForm();
-        if (currentModule === "user") return openUserForm();
-        if (currentModule === "donhang") {
-          alert("Thêm đơn hàng thường được tạo từ frontend đặt hàng.");
-          return;
-        }
-        if (currentModule === "giohang") {
-          alert("Giỏ hàng tạo khi user thêm sản phẩm.");
-          return;
-        }
-      }
-
-      // initial load
-      loadModule("sanpham");
     </script>
   </body>
 </html>

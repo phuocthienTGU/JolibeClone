@@ -2,6 +2,7 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Đăng ký</title>
     <style>
       body {
@@ -67,7 +68,6 @@
       <h2>Đăng ký tài khoản</h2>
 
       <form id="signupForm">
-        <!-- các input như hiện tại -->
         <input
           type="text"
           id="taiKhoan"
@@ -96,12 +96,18 @@
           name="dienThoai"
           placeholder="Điện thoại"
         />
-        <input type="text" id="diaChi" name="diaChi" placeholder="Địa chỉ" />
+
+        <h4 style="color: #d60000; margin-top: 15px">Xã/Phường</h4>
+        <select id="xa" name="xa" required>
+          <option value="">Chọn xã/phường</option>
+        </select>
+
         <select id="vaiTro" name="vaiTro">
           <option value="khachhang">Khách hàng</option>
-          <option value="nhanvien">Nhân viên</option>
-          <option value="admin">Admin</option>
+          <!--<option value="nhanvien">Nhân viên</option>
+          <option value="admin">Admin</option>-->
         </select>
+
         <button type="submit">Đăng ký</button>
       </form>
 
@@ -109,45 +115,70 @@
         Đã có tài khoản? <a href="login.html">Đăng nhập</a>
       </p>
     </div>
-  </body>
-  <script>
-    const form = document.getElementById("signupForm");
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault(); // chặn submit form mặc định
 
-      const data = {
-        TaiKhoan: form.taiKhoan.value,
-        MatKhau: form.matKhau.value,
-        HoTen: form.hoTen.value,
-        Email: form.email.value,
-        DienThoai: form.dienThoai.value,
-        DiaChi: form.diaChi.value,
-        VaiTro: form.vaiTro.value,
-      };
-
-      try {
-        const res = await fetch("http://localhost:5000/auth/signup", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-
-        const result = await res.json();
-
-        if (res.ok) {
-          alert(result.message || "Đăng ký thành công!");
-
-          window.location.href = "login.html";
-          form.reset();
-        } else {
-          alert(result.message || "Lỗi khi đăng ký!");
+    <script>
+      async function loadXa() {
+        try {
+          const res = await fetch("http://localhost:5000/api/xa");
+          const xas = await res.json();
+          const select = document.getElementById("xa");
+          xas.forEach((x) => {
+            select.innerHTML += `<option value="${x.MaXa}">${x.TenXa}</option>`;
+          });
+        } catch (err) {
+          console.error("Lỗi load xã");
         }
-      } catch (error) {
-        alert("Lỗi mạng hoặc server!");
-        console.error(error);
       }
-    });
-  </script>
+      loadXa();
+
+      const form = document.getElementById("signupForm");
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const maXa = form.xa.value;
+        const tenXa =
+          document.getElementById("xa").options[
+            document.getElementById("xa").selectedIndex
+          ].text;
+
+        const data = {
+          TaiKhoan: form.taiKhoan.value.trim(),
+          MatKhau: form.matKhau.value,
+          HoTen: form.hoTen.value.trim(),
+          Email: form.email.value.trim(),
+          DienThoai: form.dienThoai.value.trim(),
+          MaXa: maXa || null, // Lưu mã xã
+          VaiTro: form.vaiTro.value,
+        };
+
+        if (!data.TaiKhoan || !data.MatKhau || !data.HoTen || !data.MaXa) {
+          alert(
+            "Vui lòng điền đầy đủ thông tin bắt buộc (bao gồm chọn xã/phường)!"
+          );
+          return;
+        }
+
+        try {
+          const res = await fetch("http://localhost:5000/auth/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+
+          const result = await res.json();
+
+          if (res.ok) {
+            alert(result.message || "Đăng ký thành công!");
+            window.location.href = "login.html";
+            form.reset();
+          } else {
+            alert(result.message || "Lỗi khi đăng ký!");
+          }
+        } catch (error) {
+          alert("Lỗi mạng hoặc server!");
+          console.error(error);
+        }
+      });
+    </script>
+  </body>
 </html>

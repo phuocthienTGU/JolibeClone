@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý Người dùng</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        margin: 0;
+      }
+      header {
+        background: #d6001c;
+        color: white;
+        padding: 15px;
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+      }
+      .container {
+        max-width: 1400px;
+        margin: 20px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        font-size: 14px;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: center;
+      }
+      th {
+        background: #d6001c;
+        color: white;
+      }
+      .btn {
+        padding: 6px 10px;
+        margin: 2px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      .btn-add {
+        background: #28a745;
+        color: white;
+      }
+      .btn-edit {
+        background: #ffc107;
+        color: black;
+      }
+      .btn-delete {
+        background: #dc3545;
+        color: white;
+      }
+      .form-group {
+        margin: 12px 0;
+      }
+      label {
+        display: block;
+        margin-bottom: 4px;
+        font-weight: bold;
+      }
+      input,
+      select {
+        padding: 8px;
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        justify-content: center;
+        align-items: center;
+      }
+      .modal-content {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        width: 550px;
+        max-width: 95%;
+      }
+      .close {
+        float: right;
+        font-size: 28px;
+        cursor: pointer;
+      }
+      #searchInput {
+        width: 350px;
+        padding: 10px;
+        margin: 10px 0;
+        font-size: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>QUẢN LÝ NGƯỜI DÙNG</header>
+
+    <div class="container">
+      <button class="btn btn-add" onclick="openAddForm()">
+        + Thêm người dùng
+      </button>
+      <input
+        id="searchInput"
+        placeholder="Tìm kiếm theo tên, tài khoản, email, sđt..."
+        oninput="searchUsers()"
+      />
+      <a
+        href="admin.html"
+        style="float: right; color: #d6001c; text-decoration: none"
+        >← Quay lại Dashboard</a
+      >
+
+      <table id="userTable">
+        <thead>
+          <tr>
+            <th>Mã User</th>
+            <th>Tài khoản</th>
+            <th>Mật khẩu</th>
+            <th>Họ tên</th>
+            <th>Email</th>
+            <th>Điện thoại</th>
+            <th>Địa chỉ</th>
+            <th>Vai trò</th>
+            <th>Ngày tạo</th>
+            <th>MaXa</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Modal Thêm / Sửa -->
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeForm()">×</span>
+        <h3 id="formTitle">Thêm người dùng mới</h3>
+
+        <div class="form-group">
+          <label>Tài khoản</label>
+          <input id="TaiKhoan" required />
+        </div>
+        <div class="form-group">
+          <label
+            >Mật khẩu <small>(để trống nếu không đổi khi sửa)</small></label
+          >
+          <input id="MatKhau" type="password" />
+        </div>
+        <div class="form-group">
+          <label>Họ tên</label>
+          <input id="HoTen" required />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input id="Email" type="email" />
+        </div>
+        <div class="form-group">
+          <label>Điện thoại</label>
+          <input id="DienThoai" />
+        </div>
+        <div class="form-group">
+          <label>Địa chỉ</label>
+          <input id="DiaChi" />
+        </div>
+        <div class="form-group">
+          <label>Vai trò</label>
+          <select id="VaiTro">
+            <option value="khachhang">Khách hàng</option>
+            <option value="nhanvien">Nhân viên</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <button class="btn btn-add" onclick="saveUser()">Lưu</button>
+        <button class="btn" onclick="closeForm()" style="background: #ccc">
+          Hủy
+        </button>
+
+        <input type="hidden" id="editMaUser" />
+      </div>
+    </div>
+
+    <script>
+      // Kiểm tra quyền admin
+      const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+      if (!currentUser || currentUser.vaiTro !== "admin") {
+        alert("Bạn không có quyền truy cập trang Admin!");
+        window.location.href = "login.html";
+      }
+
+      // ĐÚNG URL - không có /api/
+      const API_USERS = "http://localhost:5000/auth/admin/users";
+      const API_SIGNUP = "http://localhost:5000/auth/signup";
+      const API_UPDATE = "http://localhost:5000/auth/admin/users/";
+      const API_DELETE = "http://localhost:5000/auth/admin/users/";
+
+      let editingMaUser = null;
+      let allUsers = [];
+
+      async function loadUsers() {
+        try {
+          const res = await fetch(API_USERS);
+          if (!res.ok) throw new Error(await res.text());
+          const data = await res.json();
+          allUsers = data;
+          renderUsers(data);
+        } catch (err) {
+          alert("Lỗi tải danh sách: " + err.message);
+        }
+      }
+
+      function renderUsers(users) {
+        const tbody = document.querySelector("#userTable tbody");
+        tbody.innerHTML = "";
+        users.forEach((u) => {
+          const passwordDisplay = u.MatKhau ? "****" : "(không có)";
+          tbody.innerHTML += `
+          <tr>
+            <td>${u.MaUser}</td>
+            <td>${u.TaiKhoan}</td>
+            <td>${passwordDisplay}</td>
+            <td>${u.HoTen || ""}</td>
+            <td>${u.Email || ""}</td>
+            <td>${u.DienThoai || ""}</td>
+            <td>${u.DiaChi || ""}</td>
+            <td><strong>${u.VaiTro}</strong></td>
+            <td>${u.NgayTao || ""}</td>
+            <td>${u.MaXa || "NULL"}</td>
+            <td>
+              <button class="btn btn-edit" onclick="editUser('${
+                u.MaUser
+              }')">Sửa</button>
+<button class="btn btn-delete" onclick="deleteUser('${
+            u.MaUser
+          }', '${u.TaiKhoan.replace(/'/g, "\\'")}')">Xóa</button>
+            </td>
+          </tr>`;
+        });
+      }
+
+      function openAddForm() {
+        editingMaUser = null;
+        document.getElementById("formTitle").textContent =
+          "Thêm người dùng mới";
+        document.getElementById("modal").style.display = "flex";
+        document
+          .querySelectorAll("#modal input")
+          .forEach((inp) => (inp.value = ""));
+        document.getElementById("VaiTro").value = "khachhang";
+        document.getElementById("MatKhau").required = true;
+      }
+
+      function editUser(maUser) {
+        const u = allUsers.find((x) => x.MaUser === maUser);
+        if (!u) return alert("Không tìm thấy user");
+
+        editingMaUser = maUser;
+        document.getElementById("formTitle").textContent = "Sửa người dùng";
+        document.getElementById("modal").style.display = "flex";
+
+        document.getElementById("TaiKhoan").value = u.TaiKhoan;
+        document.getElementById("MatKhau").value = "";
+        document.getElementById("HoTen").value = u.HoTen || "";
+        document.getElementById("Email").value = u.Email || "";
+        document.getElementById("DienThoai").value = u.DienThoai || "";
+        document.getElementById("DiaChi").value = u.DiaChi || "";
+        document.getElementById("VaiTro").value = u.VaiTro;
+        document.getElementById("MatKhau").required = false;
+      }
+
+      async function saveUser() {
+        const payload = {
+          TaiKhoan: document.getElementById("TaiKhoan").value.trim(),
+          MatKhau: document.getElementById("MatKhau").value.trim(),
+          HoTen: document.getElementById("HoTen").value.trim(),
+          Email: document.getElementById("Email").value.trim(),
+          DienThoai: document.getElementById("DienThoai").value.trim(),
+          DiaChi: document.getElementById("DiaChi").value.trim(),
+          VaiTro: document.getElementById("VaiTro").value,
+        };
+
+        if (!payload.TaiKhoan || !payload.HoTen)
+          return alert("Vui lòng nhập Tài khoản và Họ tên!");
+        if (!editingMaUser && !payload.MatKhau)
+          return alert("Mật khẩu bắt buộc khi thêm mới!");
+
+        try {
+          let res;
+          if (editingMaUser) {
+            res = await fetch(API_UPDATE + editingMaUser, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+          } else {
+            res = await fetch(API_SIGNUP, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+          }
+
+          const result = await res.json();
+          if (!res.ok) throw new Error(result.message || "Lỗi server");
+
+          alert(result.message || "Thành công!");
+          closeForm();
+          loadUsers();
+        } catch (err) {
+          alert("Lỗi: " + err.message);
+        }
+      }
+
+      async function deleteUser(maUser, taiKhoan) {
+        if (!confirm(`Xóa người dùng "${taiKhoan}"?\nKhông thể khôi phục!`))
+          return;
+
+        try {
+          const res = await fetch(API_DELETE + maUser, { method: "DELETE" });
+          const result = await res.json();
+          if (!res.ok) throw new Error(result.message || "Lỗi server");
+          alert(result.message || "Xóa thành công!");
+          loadUsers();
+        } catch (err) {
+          alert("Lỗi xóa: " + err.message);
+        }
+      }
+
+      function closeForm() {
+        document.getElementById("modal").style.display = "none";
+      }
+
+      // Tìm kiếm
+      function searchUsers() {
+        const q = document
+          .getElementById("searchInput")
+          .value.toLowerCase()
+          .trim();
+        const filtered = allUsers.filter(
+          (u) =>
+            (u.TaiKhoan || "").toLowerCase().includes(q) ||
+            (u.HoTen || "").toLowerCase().includes(q) ||
+            (u.Email || "").toLowerCase().includes(q) ||
+            (u.DienThoai || "").toLowerCase().includes(q) ||
+            (u.VaiTro || "").toLowerCase().includes(q)
+        );
+        renderUsers(filtered);
+      }
+
+      // Load ban đầu
+      loadUsers();
+    </script>
+  </body>
+</html>

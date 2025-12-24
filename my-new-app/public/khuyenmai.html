@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Khuyến Mãi - Jollibee Clone</title>
+    <style>
+      /* Giữ nguyên CSS đẹp + cải thiện */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Arial", sans-serif;
+      }
+      body {
+        background-color: #f8f8f8;
+        color: #333;
+      }
+      header {
+        background: #d6001c;
+        padding: 15px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+      }
+      header .logo {
+        font-size: 28px;
+        font-weight: bold;
+      }
+      header nav a {
+        color: white;
+        margin-left: 25px;
+        text-decoration: none;
+        font-size: 18px;
+      }
+      .promo-banner {
+        background: linear-gradient(135deg, #d6001c, #ff3366);
+        color: white;
+        text-align: center;
+        padding: 40px 20px;
+        margin-bottom: 40px;
+      }
+      .promo-banner h1 {
+        font-size: 42px;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      }
+      .promo-banner p {
+        font-size: 18px;
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      .section-title {
+        color: #d6001c;
+        font-size: 32px;
+        margin-bottom: 30px;
+        text-align: center;
+        position: relative;
+      }
+      .section-title:after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 3px;
+        background: #d6001c;
+      }
+      .promo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 30px;
+      }
+      .promo-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+      .promo-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+      }
+      .promo-badge {
+        background: #d6001c;
+        color: white;
+        padding: 8px 20px;
+        font-weight: bold;
+        font-size: 14px;
+        display: inline-block;
+        margin: 20px;
+        border-radius: 20px;
+      }
+      .promo-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+      }
+      .promo-content {
+        padding: 20px;
+      }
+      .promo-content h3 {
+        color: #d6001c;
+        font-size: 22px;
+        margin-bottom: 15px;
+      }
+      .promo-content p {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 15px;
+      }
+      .promo-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+      }
+      .promo-price {
+        font-size: 24px;
+        color: #d6001c;
+        font-weight: bold;
+      }
+      .promo-original {
+        text-decoration: line-through;
+        color: #999;
+        font-size: 16px;
+      }
+      .promo-btn {
+        background: #d6001c;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s;
+      }
+      .promo-btn:hover {
+        background: #b30015;
+        transform: scale(1.05);
+      }
+      .wheel-section {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        margin-bottom: 60px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      .wheel-container {
+        position: relative;
+        width: 400px;
+        height: 400px;
+        margin: 40px auto;
+      }
+      .wheel {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        position: relative;
+        overflow: hidden;
+        transition: transform 6s cubic-bezier(0.25, 0.1, 0.25, 1);
+        box-shadow: 0 0 30px rgba(214, 0, 28, 0.5);
+      }
+      .wheel-sector {
+        position: absolute;
+        width: 50%;
+        height: 50%;
+        transform-origin: 100% 100%;
+        left: 0;
+        top: 0;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+      }
+      .sector-text {
+        position: absolute;
+        width: 180px;
+        text-align: center;
+        left: 50%;
+        top: 50%;
+        transform-origin: 0 0;
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+        line-height: 1.3;
+      }
+      .wheel-center {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle, #ff3366, #d6001c);
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+        box-shadow: 0 0 20px rgba(255, 51, 102, 0.8);
+        cursor: pointer;
+        border: 8px solid white;
+        transition: all 0.3s;
+      }
+      .wheel-center:hover {
+        transform: translate(-50%, -50%) scale(1.1);
+        box-shadow: 0 0 30px #ff3366;
+      }
+      .pointer {
+        position: absolute;
+        top: -50px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 25px solid transparent;
+        border-right: 25px solid transparent;
+        border-top: 50px solid #d6001c;
+        z-index: 11;
+        filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.5));
+      }
+      .result-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+      }
+      .result-content {
+        background: white;
+        margin: 8% auto;
+        padding: 40px;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 550px;
+        text-align: center;
+        position: relative;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        animation: popup 0.6s;
+      }
+      @keyframes popup {
+        from {
+          transform: scale(0.6);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .close-btn {
+        position: absolute;
+        right: 20px;
+        top: 15px;
+        font-size: 36px;
+        cursor: pointer;
+        color: #d6001c;
+      }
+      .result-icon {
+        font-size: 100px;
+        margin: 20px 0;
+        animation: iconPulse 2s infinite;
+      }
+      @keyframes iconPulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+      .win .result-icon {
+        color: #ffd700;
+      }
+      .lose .result-icon {
+        color: #d6001c;
+      }
+      .result-title {
+        font-size: 36px;
+        margin-bottom: 20px;
+        color: #d6001c;
+        font-weight: bold;
+      }
+      .result-desc {
+        font-size: 20px;
+        margin-bottom: 30px;
+        color: #333;
+      }
+      .voucher-code {
+        background: #fff0f0;
+        padding: 20px;
+        border-radius: 12px;
+        font-size: 28px;
+        font-weight: bold;
+        letter-spacing: 4px;
+        margin: 25px 0;
+        color: #d6001c;
+        border: 3px dashed #d6001c;
+        box-shadow: inset 0 0 10px rgba(214, 0, 28, 0.2);
+      }
+      .use-btn,
+      .close-result-btn {
+        background: #d6001c;
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 10px;
+        font-size: 20px;
+        cursor: pointer;
+        margin: 15px;
+        transition: all 0.3s;
+      }
+      .use-btn:hover,
+      .close-result-btn:hover {
+        background: #b30015;
+        transform: scale(1.05);
+      }
+      .rules-section {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 40px;
+      }
+      .rules-section h3 {
+        color: #d6001c;
+        margin-bottom: 20px;
+        font-size: 24px;
+      }
+      .rules-section ul {
+        list-style-type: none;
+        padding-left: 20px;
+      }
+      .rules-section li {
+        padding: 10px 0;
+        position: relative;
+        padding-left: 30px;
+      }
+      .rules-section li:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #d6001c;
+        font-weight: bold;
+      }
+      .spin-info {
+        background: #fff5f5;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 20px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .spin-count {
+        font-size: 18px;
+        color: #d6001c;
+        font-weight: bold;
+      }
+      .spin-today {
+        color: #666;
+      }
+      footer {
+        margin-top: 40px;
+        padding: 20px;
+        background: #d6001c;
+        color: white;
+        text-align: center;
+      }
+      @media (max-width: 768px) {
+        header {
+          padding: 15px 20px;
+          flex-direction: column;
+          gap: 15px;
+        }
+        header nav {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 10px;
+        }
+        header nav a {
+          margin-left: 0;
+        }
+        .promo-banner h1 {
+          font-size: 32px;
+        }
+        .promo-grid {
+          grid-template-columns: 1fr;
+        }
+        .wheel-container {
+          width: 300px;
+          height: 300px;
+        }
+        .sector-text {
+          font-size: 14px;
+          width: 120px;
+        }
+        .wheel-center {
+          width: 60px;
+          height: 60px;
+          font-size: 12px;
+        }
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header>
+      <div class="logo">Jollibee Clone</div>
+      <nav>
+        <a href="index.html">Trang chủ</a>
+        <a href="thucdon.html">Thực đơn</a>
+        <a href="khuyenmai.html" style="color: yellow">Khuyến mãi</a>
+        <a href="lienhe.html">Liên hệ</a>
+        <a href="theodoi.html">Theo dõi đơn hàng</a>
+        <a
+          id="cart-btn"
+          href="giohang.html"
+          style="
+            background: yellow;
+            padding: 6px 12px;
+            border-radius: 6px;
+            color: black !important;
+            font-weight: bold;
+            margin-left: 15px;
+          "
+        >
+          🛒 Giỏ hàng (<span id="cart-count">0</span>)
+        </a>
+        <span id="user-area" style="margin-left: 20px; font-size: 18px"></span>
+      </nav>
+    </header>
+    <script src="img-config.js"></script>
+
+    <!-- PROMOTION BANNER -->
+    <section class="promo-banner">
+      <h1>KHUYẾN MÃI ĐẶC BIỆT</h1>
+      <p>
+        Thưởng thức hương vị tuyệt vời với giá ưu đãi. Quay vòng may mắn nhận
+        ngay voucher giảm giá!
+      </p>
+    </section>
+
+    <div class="container">
+      <!-- Khuyến mãi hiện tại -->
+      <section class="promo-section">
+        <h2 class="section-title">Khuyến Mãi Hiện Tại</h2>
+        <div class="promo-grid" id="promo-grid">
+          <p style="text-align: center; color: #666; grid-column: 1 / -1">
+            Đang tải khuyến mãi...
+          </p>
+        </div>
+      </section>
+
+      <!-- Vòng Quay May Mắn -->
+      <section class="wheel-section">
+        <h2 class="section-title">Vòng Quay May Mắn</h2>
+        <p style="font-size: 18px; color: #666; margin-bottom: 20px">
+          Quay ngay để nhận voucher giảm giá từ 5% đến 20% hoặc phần quà đặc
+          biệt!
+        </p>
+
+        <div class="spin-info" id="spin-info">
+          <div class="spin-count">
+            <i class="fas fa-sync-alt"></i> Lượt quay hôm nay:
+            <span id="today-spins">0/1</span>
+          </div>
+          <div class="spin-today" id="spin-status">Bạn chưa quay hôm nay</div>
+        </div>
+
+        <div class="wheel-container">
+          <div class="pointer"></div>
+          <div class="wheel" id="wheel"></div>
+          <div class="wheel-center" id="spin-btn">
+            <i class="fas fa-redo"></i><br />QUAY NGAY
+          </div>
+        </div>
+
+        <div class="rules-section">
+          <h3><i class="fas fa-info-circle"></i> Thể lệ tham gia</h3>
+          <ul>
+            <li>Mỗi tài khoản được quay 1 lần/ngày</li>
+            <li>Voucher có hiệu lực trong 7 ngày</li>
+            <li>Áp dụng cho đơn hàng từ 100.000đ trở lên</li>
+            <li>Không áp dụng chung với các khuyến mãi khác</li>
+            <li>Voucher sẽ được lưu vào tài khoản của bạn</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Combo Ưu Đãi -->
+      <section class="promo-section">
+        <h2 class="section-title">Combo Ưu Đãi</h2>
+        <div class="promo-grid" id="combo-grid">
+          <p style="text-align: center; color: #666; grid-column: 1 / -1">
+            Đang tải combo...
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <!-- Modal Kết Quả -->
+    <div id="result-modal" class="result-modal">
+      <div class="result-content" id="result-content">
+        <span class="close-btn" onclick="closeResultModal()">×</span>
+        <div id="result-icon" class="result-icon"></div>
+        <h2 id="result-title" class="result-title"></h2>
+        <p id="result-desc" class="result-desc"></p>
+        <div id="voucher-code" class="voucher-code" style="display: none"></div>
+        <button
+          id="use-voucher-btn"
+          class="use-btn"
+          style="display: none"
+          onclick="useVoucher()"
+        >
+          Sử Dụng Ngay
+        </button>
+        <button
+          id="close-result-btn"
+          class="close-result-btn"
+          onclick="closeResultModal()"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+
+    <footer>
+      <div
+        class="footer-container"
+        style="max-width: 1200px; margin: 0 auto; padding: 0 20px"
+      >
+        <div
+          style="
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+          "
+        >
+          <!-- Logo và mô tả -->
+          <div style="flex: 1; min-width: 250px; margin-bottom: 20px">
+            <h3 style="font-size: 28px; font-weight: bold; margin: 0 0 10px 0">
+              Jollibee Clone
+            </h3>
+            <p style="margin: 0; opacity: 0.9; line-height: 1.6">
+              Mang đến niềm vui ẩm thực Philippines đích thực với gà giòn Joy,
+              Spaghetti ngọt ngào và những món ăn yêu thích khác!
+            </p>
+          </div>
+
+          <!-- Liên kết nhanh -->
+          <div style="flex: 1; min-width: 200px; margin-bottom: 20px">
+            <h4 style="margin: 0 0 15px 0; font-size: 18px">Liên kết</h4>
+            <ul style="list-style: none; padding: 0; margin: 0; line-height: 2">
+              <li>
+                <a
+                  href="index.html"
+                  style="color: white; text-decoration: none; opacity: 0.9"
+                  >Trang chủ</a
+                >
+              </li>
+              <li>
+                <a
+                  href="thucdon.html"
+                  style="color: white; text-decoration: none; opacity: 0.9"
+                  >Thực đơn</a
+                >
+              </li>
+              <li>
+                <a
+                  href="khuyenmai.html"
+                  style="color: white; text-decoration: none; opacity: 0.9"
+                  >Khuyến mãi</a
+                >
+              </li>
+              <li>
+                <a
+                  href="lienhe.html"
+                  style="color: white; text-decoration: none; opacity: 0.9"
+                  >Liên hệ</a
+                >
+              </li>
+              <li>
+                <a
+                  href="theodoi.html"
+                  style="color: white; text-decoration: none; opacity: 0.9"
+                  >Theo dõi đơn hàng</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <!-- Thông tin liên hệ -->
+          <div style="flex: 1; min-width: 250px; margin-bottom: 20px">
+            <h4 style="margin: 0 0 15px 0; font-size: 18px">Liên hệ</h4>
+            <p style="margin: 8px 0; opacity: 0.9">
+              <strong>Hotline:</strong> 1900 1234<br />
+              <strong>Email:</strong> support@jollibeeclone.vn<br />
+              <strong>Thời gian:</strong> 8:00 - 22:00 hàng ngày
+            </p>
+          </div>
+        </div>
+
+        <!-- Bản quyền -->
+        <div
+          style="
+            padding: 20px 0;
+            text-align: center;
+            opacity: 0.8;
+            font-size: 14px;
+          "
+        >
+          © 2025 <strong>Jollibee Clone</strong>. Tất cả các quyền được bảo
+          lưu.<br />
+          <small
+            >Lưu ý: Đây là website mô phỏng học tập, không có liên quan đến
+            thương hiệu Jollibee chính thức.</small
+          >
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const API_GIAMGIA = "http://localhost:5000/api/giamgia";
+      const API_COMBO = "http://localhost:5000/api/combo";
+      const API_GIOHANG_ADD = "http://localhost:5000/api/giohang/add";
+
+      const wheelItems = [
+        { text: "5% OFF", value: 5, color: "#FF6B6B", type: "voucher" },
+        { text: "CHÚC BẠN MAY MẮN", value: 0, color: "#4ECDC4", type: "lose" },
+        { text: "10% OFF", value: 10, color: "#FFD166", type: "voucher" },
+        {
+          text: "UPSIZE NƯỚC",
+          value: "upsize",
+          color: "#06D6A0",
+          type: "gift",
+        },
+        { text: "20% OFF", value: 20, color: "#118AB2", type: "voucher" },
+        { text: "THỬ LẠI LẦN SAU", value: 0, color: "#073B4C", type: "lose" },
+        { text: "15% OFF", value: 15, color: "#EF476F", type: "voucher" },
+        { text: "CHÚC MAY MẮN", value: 0, color: "#FF9F1C", type: "lose" },
+      ];
+
+      let isSpinning = false;
+
+      // Load user
+      function loadUser() {
+        const userArea = document.getElementById("user-area");
+        const userStr = localStorage.getItem("user");
+
+        if (!userStr) {
+          userArea.innerHTML = `<a href="login.html" style="color: yellow;">Đăng nhập</a>`;
+          return null;
+        }
+
+        const user = JSON.parse(userStr);
+        const name = user.hoTen || "Khách";
+
+        userArea.innerHTML = `
+                Xin chào, <b>${name}</b> |
+                <a href="#" onclick="logout()" style="color: yellow;">Đăng xuất</a>
+            `;
+        return user;
+      }
+
+      function logout() {
+        localStorage.removeItem("user");
+        alert("Đã đăng xuất!");
+        location.reload();
+      }
+
+      // Init wheel
+      function initWheel() {
+        const wheel = document.getElementById("wheel");
+        wheel.innerHTML = "";
+        const total = wheelItems.length;
+        const angle = 360 / total;
+
+        wheelItems.forEach((item, i) => {
+          const sector = document.createElement("div");
+          sector.className = "wheel-sector";
+          sector.style.background = item.color;
+          sector.style.transform = `rotate(${i * angle}deg)`;
+
+          const text = document.createElement("div");
+          text.className = "sector-text";
+          text.textContent = item.text;
+          const rot = i * angle + angle / 2;
+          text.style.transform = `rotate(${rot}deg) translate(160px) rotate(${
+            rot > 180 ? 180 : 0
+          }deg)`;
+
+          sector.appendChild(text);
+          wheel.appendChild(sector);
+        });
+      }
+
+      // Check spin status
+      function checkSpinStatus(user) {
+        if (!user) {
+          document.getElementById("today-spins").textContent = "0/1";
+          document.getElementById("spin-status").innerHTML =
+            '<span style="color:#d6001c"><i class="fas fa-exclamation-circle"></i> Vui lòng đăng nhập</span>';
+          document.getElementById("spin-btn").onclick = () =>
+            alert("Vui lòng đăng nhập!");
+          return;
+        }
+
+        const key = `lastSpin_${user.MaUser}`;
+        const last = localStorage.getItem(key);
+        const today = new Date().toDateString();
+
+        if (last === today) {
+          document.getElementById("today-spins").textContent = "1/1";
+          document.getElementById("spin-status").innerHTML =
+            '<span style="color:#666"><i class="fas fa-check-circle"></i> Đã quay hôm nay</span>';
+          document.getElementById("spin-btn").onclick = () =>
+            alert("Bạn đã quay hết lượt hôm nay!");
+        } else {
+          document.getElementById("today-spins").textContent = "0/1";
+          document.getElementById("spin-status").innerHTML =
+            '<span style="color:#06D6A0"><i class="fas fa-gift"></i> Sẵn sàng quay!</span>';
+          document.getElementById("spin-btn").onclick = () => spinWheel(user);
+        }
+      }
+
+      // Spin wheel
+      function spinWheel(user) {
+        if (isSpinning) return;
+        isSpinning = true;
+
+        const btn = document.getElementById("spin-btn");
+        btn.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i><br>ĐANG QUAY...';
+        btn.style.pointerEvents = "none";
+
+        const idx = Math.floor(Math.random() * wheelItems.length);
+        const item = wheelItems[idx];
+
+        const angle = 360 / wheelItems.length;
+        const target = 360 * 6 + (360 - idx * angle - angle / 2);
+
+        document.getElementById(
+          "wheel"
+        ).style.transform = `rotate(${target}deg)`;
+
+        setTimeout(() => {
+          showResult(item);
+
+          if (item.type !== "lose") {
+            alert(
+              `Chúc mừng! Bạn nhận được ${item.text}. Voucher đã lưu vào tài khoản!`
+            );
+          }
+
+          localStorage.setItem(
+            `lastSpin_${user.MaUser}`,
+            new Date().toDateString()
+          );
+          checkSpinStatus(user);
+
+          isSpinning = false;
+          btn.innerHTML = '<i class="fas fa-redo"></i><br>QUAY NGAY';
+          btn.style.pointerEvents = "auto";
+        }, 6000);
+      }
+
+      function showResult(item) {
+        const modal = document.getElementById("result-modal");
+        document.getElementById("result-title").textContent =
+          item.type === "lose" ? "THỬ LẠI NHÉ!" : "CHÚC MỪNG!";
+        document.getElementById("result-desc").textContent =
+          item.type === "lose"
+            ? "Chúc may mắn lần sau!"
+            : `Bạn nhận được ${item.text}!`;
+        document.getElementById("result-icon").textContent =
+          item.type === "lose" ? "😔" : "🎉";
+        modal.style.display = "block";
+      }
+
+      function closeResultModal() {
+        document.getElementById("result-modal").style.display = "none";
+      }
+
+      function useVoucher() {
+        alert("Voucher đã được áp dụng! Bạn có thể sử dụng khi thanh toán.");
+        closeResultModal();
+      }
+
+      // Thêm combo vào giỏ hàng
+      async function addToCart(type, id) {
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) {
+          alert("Vui lòng đăng nhập để thêm vào giỏ hàng!");
+          window.location.href = "login.html";
+          return;
+        }
+
+        try {
+          // Giả sử bạn có API lấy hoặc tạo giỏ hàng
+          let res = await fetch(
+            `http://localhost:5000/api/giohang/user/${user.MaUser}`
+          );
+          let giohangData;
+
+          if (res.status === 404) {
+            const createRes = await fetch(
+              `http://localhost:5000/api/giohang/user/${user.MaUser}`,
+              { method: "POST" }
+            );
+            giohangData = await createRes.json();
+          } else {
+            giohangData = await res.json();
+          }
+
+          const MaGioHang = giohangData.giohang?.MaGioHang;
+
+          if (!MaGioHang) throw new Error("Không tìm thấy giỏ hàng");
+
+          const payload = {
+            MaGioHang,
+            LoaiSanPham: type,
+            MaCombo: type === "combo" ? id : null,
+            SoLuong: 1,
+          };
+
+          const addRes = await fetch(API_GIOHANG_ADD, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!addRes.ok) throw new Error("Lỗi thêm vào giỏ hàng");
+
+          alert("✅ Đã thêm vào giỏ hàng!");
+          updateCartCount();
+        } catch (e) {
+          console.error(e);
+          alert("Lỗi: " + e.message);
+        }
+      }
+
+      // Cập nhật số lượng giỏ hàng
+      async function updateCartCount() {
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) return;
+
+        try {
+          const res = await fetch(
+            `http://localhost:5000/api/giohang/user/${user.MaUser}`
+          );
+          if (!res.ok) return;
+
+          const data = await res.json();
+          const total =
+            data.chiTiet?.reduce((sum, item) => sum + item.SoLuong, 0) || 0;
+          document.getElementById("cart-count").textContent = total;
+        } catch (e) {
+          console.error("Lỗi cập nhật giỏ hàng:", e);
+        }
+      }
+
+      // Load data
+      async function loadData() {
+        const promoGrid = document.getElementById("promo-grid");
+        const comboGrid = document.getElementById("combo-grid");
+
+        try {
+          const giamRes = await fetch(API_GIAMGIA);
+          if (!giamRes.ok)
+            throw new Error(`Lỗi API khuyến mãi: ${giamRes.status}`);
+          const giamGia = await giamRes.json();
+
+          promoGrid.innerHTML =
+            giamGia.length > 0
+              ? giamGia
+                  .map(
+                    (g) => `
+                    <div class="promo-card">
+                        <div class="promo-badge">GIẢM ${g.PhanTram}%</div>
+                        <img src="${window.IMG_BASE}/${
+                          g.HinhAnh || "ga-ran-1.jpg"
+                        }" class="promo-image" alt="${g.MaGiamGia}" onerror="this.src=window.IMG_BASE+'/ga-ran-1.jpg'">
+                        <div class="promo-content">
+                            <h3>Mã: ${g.MaGiamGia}</h3>
+                            <p>${
+                              g.MoTa || "Ưu đãi hấp dẫn"
+                            }<br>Hiệu lực: ${new Date(
+                      g.NgayBatDau
+                    ).toLocaleDateString()} - ${new Date(
+                      g.NgayHetHan
+                    ).toLocaleDateString()}</p>
+                            <div class="promo-details">
+                                <span class="promo-price">Áp dụng ngay</span>
+                                <button class="promo-btn" onclick="useVoucher()">Sử dụng</button>
+                            </div>
+                        </div>
+                    </div>
+                `
+                  )
+                  .join("")
+              : "<p style='grid-column:1/-1;text-align:center'>Chưa có khuyến mãi nào</p>";
+
+          const comboRes = await fetch(API_COMBO);
+          if (!comboRes.ok)
+            throw new Error(`Lỗi API combo: ${comboRes.status}`);
+          const combos = await comboRes.json();
+
+          comboGrid.innerHTML =
+            combos.length > 0
+              ? combos
+                  .map(
+                    (c) => `
+                    <div class="promo-card">
+                        <div class="promo-badge">COMBO</div>
+                        <img src="${window.IMG_BASE}/${
+                          c.HinhAnh || "combo-ga-ran.jpg"
+                        }" class="promo-image" alt="${c.TenCombo}" onerror="this.src=window.IMG_BASE+'/combo-ga-ran.jpg'">
+                        <div class="promo-content">
+                            <h3>${c.TenCombo}</h3>
+                            <p>${c.MoTa || "Combo ngon"}</p>
+                            <div class="promo-details">
+                                <span class="promo-price">${Number(
+                                  c.GiaCombo
+                                ).toLocaleString()}đ</span>
+                                <button class="promo-btn" onclick="addToCart('combo', '${
+                                  c.MaCombo
+                                }')">Thêm giỏ</button>
+                            </div>
+                        </div>
+                    </div>
+                `
+                  )
+                  .join("")
+              : "<p style='grid-column:1/-1;text-align:center'>Chưa có combo nào</p>";
+        } catch (e) {
+          console.error("Lỗi tải:", e);
+          promoGrid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:red">Lỗi tải khuyến mãi: ${e.message}</p>`;
+        }
+      }
+
+      // Khởi tạo
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = loadUser();
+        initWheel();
+        checkSpinStatus(user);
+        loadData();
+        updateCartCount();
+      });
+    </script>
+  </body>
+</html>

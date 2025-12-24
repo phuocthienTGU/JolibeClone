@@ -116,8 +116,8 @@
       <nav>
         <a href="index.html">Trang chủ</a>
         <a href="thucdon.html">Thực đơn</a>
-        <a href="#">Khuyến mãi</a>
-        <a href="#">Liên hệ</a>
+        <a href="khuyenmai.html">Khuyến mãi</a>
+        <a href="lienhe.html">Liên hệ</a>
         <a href="theodoi.html">Theo dõi đơn hàng</a>
         <a
           id="cart-btn"
@@ -140,8 +140,16 @@
         </span>
       </nav>
     </header>
+    <script src="img-config.js"></script>
 
-    <div class="banner">Banner (chèn ảnh sau)</div>
+    <div
+      class="banner"
+      style="
+        background-image: url('https://www.jollibeefoods.com/_next/image?url=https%3A%2F%2Fjollibee-prod-media.s3.us-west-2.amazonaws.com%2FJB_1835_Catering_Homepage_Banner_960x600_20b5e0998e.png&w=1920&q=75');
+        background-size: cover;
+        background-position: center;
+      "
+    ></div>
 
     <section class="product-section">
       <div class="product-title">Món ăn nổi bật</div>
@@ -150,7 +158,103 @@
       </div>
     </section>
 
-    <footer>© 2025 Jollibee Clone - Giao diện kết nối CSDL</footer>
+    <footer>
+      <div
+        class="footer-container"
+        style="max-width: 1200px; margin: 0 auto; padding: 0 20px"
+      >
+        <div
+          style="
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+          "
+        >
+          <!-- Logo và mô tả -->
+          <div style="flex: 1; min-width: 250px; margin-bottom: 20px">
+            <h3 style="font-size: 28px; font-weight: bold; margin: 0 0 10px 0">
+              Jollibee Clone
+            </h3>
+            <p style="margin: 0; opacity: 0.9; line-height: 1.6">
+              Mang đến niềm vui ẩm thực Philippines đích thực với gà giòn Joy,
+              Spaghetti ngọt ngào và những món ăn yêu thích khác!
+            </p>
+          </div>
+
+          <!-- Liên kết nhanh -->
+          <div style="flex: 1; min-width: 200px; margin-bottom: 20px">
+            <h4 style="margin: 0 0 15px 0; font-size: 18px">Liên kết</h4>
+            <ul style="list-style: none; padding: 0; margin: 0; line-height: 2">
+              <li>
+                <a
+                  href="index.html"
+                  style="color: white; text-decoration: none; opacity: 0.9"
+                  >Trang chủ</a
+                >
+              </li>
+              <li>
+                <a
+                  href="thucdon.html"
+                  style="color: white; text-decoration: none; opacity: 0.9"
+                  >Thực đơn</a
+                >
+              </li>
+              <li>
+                <a
+                  href="khuyenmai.html"
+                  style="color: white; text-decoration: none; opacity: 0.9"
+                  >Khuyến mãi</a
+                >
+              </li>
+              <li>
+                <a
+                  href="lienhe.html"
+                  style="color: white; text-decoration: none; opacity: 0.9"
+                  >Liên hệ</a
+                >
+              </li>
+              <li>
+                <a
+                  href="theodoi.html"
+                  style="color: white; text-decoration: none; opacity: 0.9"
+                  >Theo dõi đơn hàng</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <!-- Thông tin liên hệ -->
+          <div style="flex: 1; min-width: 250px; margin-bottom: 20px">
+            <h4 style="margin: 0 0 15px 0; font-size: 18px">Liên hệ</h4>
+            <p style="margin: 8px 0; opacity: 0.9">
+              <strong>Hotline:</strong> 1900 1234<br />
+              <strong>Email:</strong> support@jollibeeclone.vn<br />
+              <strong>Thời gian:</strong> 8:00 - 22:00 hàng ngày
+            </p>
+          </div>
+        </div>
+
+        <!-- Bản quyền -->
+        <div
+          style="
+            padding: 20px 0;
+            text-align: center;
+            opacity: 0.8;
+            font-size: 14px;
+          "
+        >
+          © 2025 <strong>Jollibee Clone</strong>. Tất cả các quyền được bảo
+          lưu.<br />
+          <small
+            >Lưu ý: Đây là website mô phỏng học tập, không có liên quan đến
+            thương hiệu Jollibee chính thức.</small
+          >
+        </div>
+      </div>
+    </footer>
 
     <script>
       function loadUser() {
@@ -252,19 +356,22 @@
 
           data.forEach((sp) => {
             const card = `
-          <div class="product-card">
-            <img src="images/${sp.HinhAnh}" class="product-image" alt="">
-            <div class="product-name">${sp.TenSanPham}</div>
-            <div class="product-price">${Number(sp.Gia).toLocaleString()}₫</div>
+  <div class="product-card">  
+    <img src="${window.IMG_BASE}/${sp.HinhAnh || "ga-ran-1.jpg"}" 
+         class="product-image" 
+         alt="${sp.TenSanPham}"
+         onerror="this.src=window.IMG_BASE+'/ga-ran-1.jpg'; this.onerror=null;">
+    <div class="product-name">${sp.TenSanPham}</div>
+    <div class="product-price">${Number(sp.Gia).toLocaleString()}₫</div>
 
-            <button class="btn-buy" onclick='addToCart({
-              id: "${sp.MaSanPham}",
-              name: "${sp.TenSanPham}",
-              price: ${sp.Gia},
-              img: "${sp.HinhAnh}"
-            })'>🛒 Thêm vào giỏ</button>
-          </div>
-        `;
+    <button class="btn-buy" onclick='addToCart({
+      id: "${sp.MaSanPham}",
+      name: "${sp.TenSanPham}",
+      price: ${sp.Gia},
+      img: "${sp.HinhAnh}"
+    })'>🛒 Thêm vào giỏ</button>
+  </div>
+`;
             grid.innerHTML += card;
           });
         } catch (err) {

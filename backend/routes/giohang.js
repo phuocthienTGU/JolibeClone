@@ -7,6 +7,15 @@ const router = express.Router();
  * Lấy giỏ hàng đang dùng của user (trạng thái = 'dang_su_dung')
  * Kèm chi tiết sản phẩm + combo
  */
+
+router.get("/", (req, res) => {
+  res.json({
+    status: "OK",
+    message: "Gio hang API dang hoat dong",
+    huongDan: "Dung /api/giohang/user/:maUser",
+  });
+});
+
 router.get("/user/:maUser", async (req, res) => {
   try {
     const { maUser } = req.params;
@@ -121,6 +130,51 @@ router.post("/add", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Lỗi thêm/cập nhật giỏ hàng" });
+  }
+});
+
+// ADMIN - lấy tất cả giỏ hàng
+router.get("/", async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT 
+        MaGioHang,
+        MaUser,
+        NgayTao,
+        TrangThai
+      FROM giohang
+      ORDER BY NgayTao DESC
+    `);
+
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Lỗi lấy danh sách giỏ hàng" });
+  }
+});
+// ADMIN - lấy chi tiết 1 giỏ hàng
+router.get("/:maGioHang/chitiet", async (req, res) => {
+  try {
+    const { maGioHang } = req.params;
+
+    const [rows] = await pool.query(
+      `
+      SELECT 
+        MaChiTiet,
+        LoaiSanPham,
+        MaSanPham,
+        MaCombo,
+        SoLuong
+      FROM giohangchitiet
+      WHERE MaGioHang = ?
+    `,
+      [maGioHang]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Lỗi lấy chi tiết giỏ hàng" });
   }
 });
 
